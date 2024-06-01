@@ -19,7 +19,7 @@ app.use('/health',(req:Request,res:Response)=>{
         RunTime:process.uptime()
     })
 })
-app.use('/api/auth/signup',authRouter)
+app.use('/api/auth',authRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
