@@ -1,19 +1,25 @@
-import express from "express";
+import express, {CookieOptions} from "express";
 import type {Request, Response, Router} from "express";
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 
-
-import {SignupFormSchema} from "../types/auth";
+import {RegisterFormSchema} from "../types/auth";
 import returnMsg from "../utils/returnMsg";
 import {prisma} from "../utils/pgConnect";
-import {ACCESS_TOKEN_SECRET,REFRESH_TOKEN_SECRET} from "../utils/config";
+import {signJWT} from "../utils/jwtUtils";
+import {requireUser} from "../middleware/requireUser";
 
 const router: Router = express.Router();
 
+export const accessTokenCookieOptions: CookieOptions = {
+    maxAge: 900000,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+};
+
 router.route('/register').post(async (req: Request, res: Response) => {
     try {
-        const isValid = SignupFormSchema.safeParse(req.body);
+        const isValid = RegisterFormSchema.safeParse(req.body);
         if (!isValid.success) {
             const msg: string = returnMsg(isValid);
             return res.status(422).send(msg);
@@ -48,16 +54,26 @@ router.route('/register').post(async (req: Request, res: Response) => {
                 createdAt: true,
             }
         })
+        const accessToken = signJWT({user},{expiresIn:"15m"})
+        const refreshToken = signJWT({user},{expiresIn:"1y"})
 
-        const accessToken = jwt.sign({user}, ACCESS_TOKEN_SECRET, {expiresIn: "15m"});
-        const refreshToken = jwt.sign({user}, REFRESH_TOKEN_SECRET, {expiresIn: "7d"});
+        const refreshTokenCookieOptions: CookieOptions = {
+            ...accessTokenCookieOptions,
+            maxAge: 3.154e10, // 1 year
+        };
 
+        res.cookie('accessToken', accessToken, accessTokenCookieOptions);
+        res.cookie('refreshToken', refreshToken,refreshTokenCookieOptions);
 
-
-        return res.status(200).send(user);
+        return res.status(200).send({user});
     } catch (error) {
         console.log(error);
         return res.status(500).send(error);
     }
 })
-export {router as authRouter}
+
+router.route('/me').get(requireUser,(req: Request, res: Response) => {
+    return res.status(200).send(res.locals.user)
+})
+
+export {router as userRouter}

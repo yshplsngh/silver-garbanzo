@@ -1,4 +1,4 @@
-import {z} from 'zod'
+import z from 'zod'
 
 enum errMsg {
     isEmail = "email should be correct type",
@@ -17,4 +17,4 @@ export const RegisterFormSchema = z.object({
     path: ["confirmPassword"]
 })
 
-
+export type RegisterFormType = z.infer<typeof RegisterFormSchema>
