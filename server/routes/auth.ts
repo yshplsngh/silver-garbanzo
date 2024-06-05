@@ -51,11 +51,10 @@ router.route('/register').post(async (req: Request, res: Response) => {
                 email: true,
                 name: true,
                 picture: true,
-                createdAt: true,
             }
         })
-        const accessToken = signJWT({user},{expiresIn:"15m"})
-        const refreshToken = signJWT({user},{expiresIn:"1y"})
+        const accessToken = signJWT(user,{expiresIn:"15m"})
+        const refreshToken = signJWT(user,{expiresIn:"1y"})
 
         const refreshTokenCookieOptions: CookieOptions = {
             ...accessTokenCookieOptions,

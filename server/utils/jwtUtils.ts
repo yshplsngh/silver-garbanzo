@@ -1,19 +1,25 @@
 import jwt from "jsonwebtoken";
 import {PRIVATE_KEY, PUBLIC_KEY} from "./config";
-import {NextFunction} from "express";
 import {prisma} from "./pgConnect";
 
-export const signJWT = (data: Object, options?: jwt.SignOptions | undefined) => {
+export const signJWT = (data:Object, options?: jwt.SignOptions | undefined) => {
     return jwt.sign(
-        {data},
+        data,
         PRIVATE_KEY,
         {...(options && options), algorithm: "RS256"}
     );
 }
 
+interface decodedTokenType {
+    id: number,
+    email: string,
+    name: string,
+    picture: string
+}
+
 export const validateToken = (token: string) => {
     try {
-        const decoded: any = jwt.verify(token, PUBLIC_KEY)
+        const decoded:decodedTokenType = jwt.verify(token, PUBLIC_KEY) as decodedTokenType;
         return {
             expired: false,
             decoded
@@ -35,7 +41,7 @@ export const reIssueAccessToken = async ({refreshToken}: { refreshToken: string 
 
     const user = await prisma.user.findUnique({
         where: {
-            id: decoded.userId
+            id: decoded.id
         },
         select: {
             id: true,

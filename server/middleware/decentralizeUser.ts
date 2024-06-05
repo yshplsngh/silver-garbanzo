@@ -3,8 +3,8 @@ import {reIssueAccessToken, validateToken} from "../utils/jwtUtils";
 import {accessTokenCookieOptions} from "../routes/auth";
 
 export const deserializeUser = async (req:Request,res:Response,next:NextFunction)=>{
-    const accessToken = req.cookies.get('accessToken');
-    const refreshToken = req.cookies.get('refreshToken');
+    const accessToken = req.cookies?.accessToken
+    const refreshToken = req.cookies?.refreshToken
 
     if(!accessToken){
         return next();
@@ -12,7 +12,6 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
 
     const {decoded,expired} = validateToken(accessToken);
     if(decoded){
-        console.log(decoded);
         res.locals.user = decoded
         return next();
     }

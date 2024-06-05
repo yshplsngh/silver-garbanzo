@@ -2,6 +2,10 @@ import {Fragment} from "react";
 import {SubmitHandler,useForm} from 'react-hook-form'
 import {zodResolver} from "@hookform/resolvers/zod";
 import {RegisterFormSchema, RegisterFormType} from "../types/Register.ts";
+import {useMutation} from "@tanstack/react-query";
+import {bashApi} from "../api/bashApi.tsx";
+import axios from "axios";
+import {toast} from 'sonner'
 
 
 const Register = () => {
@@ -11,13 +15,34 @@ const Register = () => {
         ,formState:{errors,isValid}
     } = useForm<RegisterFormType>({resolver:zodResolver(RegisterFormSchema)})
 
-    const onSubmit:SubmitHandler<RegisterFormType> = async(data:RegisterFormType)=>{
-        if(isValid){
-            console.log('ready to learn react query');
-            console.log(data);
+    const registerMutation = useMutation({
+        mutationFn:(data:RegisterFormType)=>{
+            return bashApi.post('/user/register',data)
+        },
+        onSuccess:()=>{
+            // console.log(data);
+            toast.success("User successfully registered!");
+            // here i will navigate user to post page
+        },
+        onError: (error) => {
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data || "An error occurred. Please try again later.")
+            } else {
+                toast.error("An unknown error occurred")
+            }
         }
+    })
 
+    const onSubmit:SubmitHandler<RegisterFormType> = async(data:RegisterFormType)=>{
+        if (isValid) {
+            try {
+                await registerMutation.mutateAsync(data);
+            } catch (err){
+                // Error handling is already done in onError callback of useMutation
+            }
+        }
     }
+
 
     return <Fragment>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -71,6 +96,9 @@ const Register = () => {
             {errors.confirmPassword && (
                 <p className="error-message">{errors.confirmPassword?.message}</p>
             )}
+            <button type='submit'>
+                Submit
+            </button>
         </form>
     </Fragment>
 }
