@@ -6,9 +6,12 @@ import {useMutation} from "@tanstack/react-query";
 import {bashApi} from "../api/bashApi.tsx";
 import axios from "axios";
 import {toast} from 'sonner'
+import {NavigateFunction, useNavigate} from "react-router-dom";
 
 
 const Register = () => {
+
+    const navigate:NavigateFunction = useNavigate();
 
     const {register
         ,handleSubmit
@@ -20,11 +23,11 @@ const Register = () => {
             return bashApi.post('/user/register',data)
         },
         onSuccess:()=>{
-            // console.log(data);
             toast.success("User successfully registered!");
             // here i will navigate user to post page
+            navigate('/posts')
         },
-        onError: (error) => {
+        onError: (error:Error) => {
             if (axios.isAxiosError(error)) {
                 toast.error(error.response?.data || "An error occurred. Please try again later.")
             } else {
@@ -39,6 +42,7 @@ const Register = () => {
                 await registerMutation.mutateAsync(data);
             } catch (err){
                 // Error handling is already done in onError callback of useMutation
+                console.log(`Unexpected Error ${err}`)
             }
         }
     }

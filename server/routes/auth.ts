@@ -11,7 +11,7 @@ import {requireUser} from "../middleware/requireUser";
 const router: Router = express.Router();
 
 export const accessTokenCookieOptions: CookieOptions = {
-    maxAge: 900000,
+    maxAge: 1050000,
     httpOnly: true,
     sameSite: "lax",
     secure: false,

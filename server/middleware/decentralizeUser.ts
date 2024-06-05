@@ -25,6 +25,5 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
         res.locals.user = result.decoded;
         return next();
     }
-
     return next();
 }
