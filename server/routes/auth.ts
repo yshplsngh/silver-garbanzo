@@ -11,7 +11,7 @@ import {requireUser} from "../middleware/requireUser";
 const router: Router = express.Router();
 
 export const accessTokenCookieOptions: CookieOptions = {
-    maxAge: 1050000,
+    maxAge: 604800000,
     httpOnly: true,
     sameSite: "lax",
     secure: false,
@@ -53,7 +53,7 @@ router.route('/register').post(async (req: Request, res: Response) => {
                 picture: true,
             }
         })
-        const accessToken = signJWT(user,{expiresIn:"15m"})
+        const accessToken = signJWT(user,{expiresIn:"1m"})
         const refreshToken = signJWT(user,{expiresIn:"1y"})
 
         const refreshTokenCookieOptions: CookieOptions = {

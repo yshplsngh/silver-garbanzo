@@ -6,22 +6,34 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
     const accessToken = req.cookies?.accessToken
     const refreshToken = req.cookies?.refreshToken
 
+    // console.log(refreshToken);
+
     if(!accessToken){
+        console.error("Access token is missing");
         return next();
     }
 
     const {decoded,expired} = validateToken(accessToken);
     if(decoded){
+        console.log(16)
+        console.log(decoded)
         res.locals.user = decoded
         return next();
     }
     if(expired && refreshToken){
+        console.log('access token is expired 22');
+        console.log('issuing refresh token');
         const newAccessToken = await reIssueAccessToken(refreshToken);
-        if(accessToken){
+        if(newAccessToken){
             res.cookie("accessToken", newAccessToken,accessTokenCookieOptions);
+        }else{
+            console.log('access token is false');
+            return next()
         }
-        const result = validateToken(newAccessToken as string);
 
+        const result = validateToken(newAccessToken);
+        console.log(35)
+        console.log(result);
         res.locals.user = result.decoded;
         return next();
     }

@@ -20,6 +20,8 @@ interface decodedTokenType {
 export const validateToken = (token: string) => {
     try {
         const decoded:decodedTokenType = jwt.verify(token, PUBLIC_KEY) as decodedTokenType;
+        // console.log('23');
+        // console.log(decoded);
         return {
             expired: false,
             decoded
@@ -32,10 +34,11 @@ export const validateToken = (token: string) => {
     }
 }
 
-
-export const reIssueAccessToken = async ({refreshToken}: { refreshToken: string }) => {
+export const reIssueAccessToken = async (refreshToken:string) => {
     const {decoded, expired} = validateToken(refreshToken);
-    if (!decoded || expired) {
+
+    if (decoded===null || expired) {
+        console.log('Refresh token expired 38');
         return false;
     }
 
@@ -48,12 +51,13 @@ export const reIssueAccessToken = async ({refreshToken}: { refreshToken: string 
             email: true,
             name: true,
             picture: true,
-            createdAt: true,
         }
     });
-
+    console.log('find user from refreshtoken decoded id 53')
+    console.log(user)
     if(!user){
+        console.log("user not found in 54");
         return false;
     }
-    return signJWT({user}, {expiresIn:"15m"});
+    return signJWT({user}, {expiresIn:"1m"});
 }
