@@ -8,6 +8,7 @@ import {PORT} from "./utils/config";
 import {userRouter} from "./routes/auth";
 import {pgConnect} from "./utils/pgConnect";
 import {deserializeUser} from "./middleware/decentralizeUser";
+import {postRouter} from "./routes/post";
 
 
 app.use(cors({
@@ -28,6 +29,7 @@ app.use('/health',(req:Request,res:Response)=>{
     })
 })
 app.use('/api/user',userRouter)
+app.use('/api/post',postRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);

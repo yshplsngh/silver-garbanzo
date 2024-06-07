@@ -21,7 +21,7 @@
     height: 400px;
     pointer-events: none;
     opacity: .5;
-    background-image: url('assets/gl1.png'),url('assets/gl2.png'),url('assets/gl3.png');
+    background-image: url('gl1.png'),url('gl2.png'),url('gl3.png');
     background-repeat: no-repeat;
     background-size: contain;
     margin: 0 auto;

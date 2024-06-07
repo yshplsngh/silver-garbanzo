@@ -1,14 +1,23 @@
-import { Outlet } from "react-router-dom";
-import { useQuery } from '@tanstack/react-query';
+import {Navigate, Outlet, useLocation} from "react-router-dom";
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import { bashApi } from "../api/bashApi";
 import { toast } from "sonner";
-import Err404 from "../component/Err404";
 
-// Component to require authentication for accessing routes
 const RequireAuth = () => {
+
+    const location = useLocation();
+
+    const queryClient = useQueryClient();
+    const cachedData = queryClient.getQueryData(["userProfile"]);
+
     const { data, isLoading,isSuccess, isError } = useQuery({
         queryKey: ['userProfile'],
         queryFn: () => bashApi.get('/user/me')
+            .then(res=>res.data),
+        initialData:cachedData,
+        retry:false,
+        refetchOnWindowFocus:true,
+        refetchOnReconnect:true
     });
 
     if (isLoading) {
@@ -16,11 +25,11 @@ const RequireAuth = () => {
     }
 
     if (isError) {
-        toast.error("Authentication failed. Please log in again.");
-        return <Err404 />;
+        toast.error("Please Authenticate to access this page.");
+        return <Navigate to={"/"} replace state={{ from: location }} />
     }
 
-    if (isSuccess && data?.data) {
+    if (isSuccess && data) {
         return <Outlet />;
     }
 
