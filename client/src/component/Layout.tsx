@@ -1,11 +1,10 @@
-import {Fragment} from "react";
 import {Outlet} from "react-router-dom";
 import {Toaster} from 'sonner'
 
 const Layout = () => {
-    return <Fragment>
-        <Outlet/>
+    return <div>
         <Toaster richColors closeButton={true}/>
-    </Fragment>
+        <Outlet/>
+    </div>
 }
 export default Layout

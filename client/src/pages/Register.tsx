@@ -49,7 +49,7 @@ const Register = () => {
 
 
     return <Fragment>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form className={'formSet'} onSubmit={handleSubmit(onSubmit)}>
             <label htmlFor="name">Name:</label>
             <input
                 {...register("name", {required: true})}

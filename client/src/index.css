@@ -1,0 +1,16 @@
+body{
+    color: #e8e8e8;
+    background-color: #1B262C;
+}
+input{
+    height: 3rem;
+    width: 14rem;
+}
+.formSet input{
+    display: flex;
+}
+
+.setting{
+    padding: 0;
+    margin: 0;
+}

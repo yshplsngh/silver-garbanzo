@@ -9,6 +9,7 @@ import {userRouter} from "./routes/auth";
 import {pgConnect} from "./utils/pgConnect";
 import {deserializeUser} from "./middleware/decentralizeUser";
 import {postRouter} from "./routes/post";
+import {operation} from "./utils/testing";
 
 
 app.use(cors({

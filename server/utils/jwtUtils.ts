@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import {PRIVATE_KEY, PUBLIC_KEY} from "./config";
+import {ATT, PRIVATE_KEY, PUBLIC_KEY} from "./config";
 import {prisma} from "./pgConnect";
 
 export const signJWT = (data:Object, options?: jwt.SignOptions | undefined) => {
@@ -54,10 +54,11 @@ export const reIssueAccessToken = async (refreshToken:string) => {
         }
     });
     console.log('find user from refreshtoken decoded id 53')
-    console.log(user)
+    // console.log(user)
     if(!user){
         console.log("user not found in 54");
         return false;
     }
-    return signJWT({user}, {expiresIn:"1m"});
+    console.log('user present in RT token is found')
+    return signJWT({user}, {expiresIn:ATT});
 }

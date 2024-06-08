@@ -15,8 +15,8 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
 
     const {decoded,expired} = validateToken(accessToken);
     if(decoded){
-        console.log(16)
-        console.log(decoded)
+        // console.log(16)
+        // console.log(decoded)
         res.locals.user = decoded
         return next();
     }
@@ -27,13 +27,13 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
         if(newAccessToken){
             res.cookie("accessToken", newAccessToken,accessTokenCookieOptions);
         }else{
-            console.log('access token is false');
+            console.log('new access token not created');
             return next()
         }
 
         const result = validateToken(newAccessToken);
-        console.log(35)
-        console.log(result);
+        // console.log(35)
+        // console.log(result);
         res.locals.user = result.decoded;
         return next();
     }

@@ -7,6 +7,7 @@ import returnMsg from "../utils/returnMsg";
 import {prisma} from "../utils/pgConnect";
 import {signJWT} from "../utils/jwtUtils";
 import {requireUser} from "../middleware/requireUser";
+import {ATT} from "../utils/config";
 
 const router: Router = express.Router();
 
@@ -53,7 +54,7 @@ router.route('/register').post(async (req: Request, res: Response) => {
                 picture: true,
             }
         })
-        const accessToken = signJWT(user,{expiresIn:"1m"})
+        const accessToken = signJWT(user,{expiresIn:ATT})
         const refreshToken = signJWT(user,{expiresIn:"1y"})
 
         const refreshTokenCookieOptions: CookieOptions = {
