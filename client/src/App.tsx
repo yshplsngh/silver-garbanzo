@@ -5,15 +5,20 @@ import Post from "./pages/Post.tsx";
 import Layout from "./component/Layout.tsx";
 import Err404 from "./pages/Err404.tsx";
 import {Suspense} from "react";
+import Loading from "./component/Loading.tsx";
+import Testing from "./component/Testing.tsx";
+import Header from "./component/Header.tsx";
 
 function App() {
-    return <Suspense fallback={<h1>Loading...</h1>}>
+    return <Suspense fallback={<Loading/>}>
         <Routes>
             <Route path={'/'} element={<Layout/>}>
+                {/*<Route index element=<Register/>/>*/}
                 <Route index element=<Register/>/>
                 <Route path='posts' element=<RequireAuth/>>
                     <Route index element=<Post/>/>
                 </Route>
+                <Route path={'test'} element={<Testing/>}/>
                 <Route path={'*'} element={<Err404/>}/>
             </Route>
         </Routes>

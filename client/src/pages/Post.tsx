@@ -2,6 +2,9 @@ import {useEffect } from "react";
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import {bashApi} from "../api/bashApi.tsx";
+import Loading from "../component/Loading.tsx";
+import {toast} from "sonner";
+import Header from "../component/Header.tsx";
 
 interface PostType {
     id: number;
@@ -57,11 +60,12 @@ const Post = () => {
         }
     }, [inView, fetchNextPage]);
 
-    if (isLoading) return <h1>Loading...</h1>;
-    if (isError) return <h1>{(error as Error).message}</h1>;
+    if (isLoading) return <Loading/>
+    if (isError) return toast.error(`${(error as Error).message}`);
 
     return (
-        <div>
+        <section>
+            <Header/>
             {data?.pages.map((page: ResultType, pageIndex: number) => (
                 <div key={pageIndex}>
                     {page.posts.map((post: PostType) => (
@@ -72,8 +76,9 @@ const Post = () => {
                     ))}
                 </div>
             ))}
-            <div ref={ref} className={'setting'}>{isFetchingNextPage && 'Loading more posts...'}</div>
-        </div>
+            <div>{isError && (error as Error).message}</div>
+            <div ref={ref} className={'setting'}>{isFetchingNextPage && <Loading/>}</div>
+        </section>
     );
 };
 

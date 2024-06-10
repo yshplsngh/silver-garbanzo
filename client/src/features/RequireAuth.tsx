@@ -2,6 +2,7 @@ import {Navigate, Outlet, useLocation} from "react-router-dom";
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import { bashApi } from "../api/bashApi";
 import { toast } from "sonner";
+import Loading from "../component/Loading.tsx";
 
 const RequireAuth = () => {
 
@@ -20,9 +21,7 @@ const RequireAuth = () => {
         refetchOnReconnect:true
     });
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
+    if (isLoading) return <Loading/>;
 
     if (isError) {
         toast.error("Please Authenticate to access this page.");

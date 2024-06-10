@@ -1,10 +1,12 @@
 import {Outlet} from "react-router-dom";
 import {Toaster} from 'sonner'
+import Header from "./Header.tsx";
 
 const Layout = () => {
-    return <div>
+    return <main>
         <Toaster richColors closeButton={true}/>
+        <Header/>
         <Outlet/>
-    </div>
+    </main>
 }
 export default Layout

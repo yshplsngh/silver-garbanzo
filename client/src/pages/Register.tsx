@@ -8,7 +8,6 @@ import axios from "axios";
 import {toast} from 'sonner'
 import {NavigateFunction, useNavigate} from "react-router-dom";
 
-
 const Register = () => {
 
     const navigate:NavigateFunction = useNavigate();
@@ -33,11 +32,13 @@ const Register = () => {
             } else {
                 toast.error("An unknown error occurred")
             }
-        }
+        },
     })
 
     const onSubmit:SubmitHandler<RegisterFormType> = async(data:RegisterFormType)=>{
         if (isValid) {
+            console.log(isValid);
+            console.log(data);
             try {
                 await registerMutation.mutateAsync(data);
             } catch (err){
@@ -46,7 +47,6 @@ const Register = () => {
             }
         }
     }
-
 
     return <Fragment>
         <form className={'formSet'} onSubmit={handleSubmit(onSubmit)}>
@@ -100,6 +100,12 @@ const Register = () => {
             {errors.confirmPassword && (
                 <p className="error-message">{errors.confirmPassword?.message}</p>
             )}
+            <input
+                {...register("tac")}
+                type="checkbox"
+                id="checkbox"
+            />
+            {errors.tac && <p>{errors.tac?.message}</p>}
             <button type='submit'>
                 Submit
             </button>
