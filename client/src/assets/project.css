@@ -1,6 +1,5 @@
 .not-found-container {
     text-align: center;
-    margin-top: 50px;
 }
 
 .content {
@@ -16,12 +15,12 @@
     border-radius: 50%; /* To make the image round */
 }
 
-.op{
-    border: 1px solid red;
-}
-.pp{
-    border: 1px solid green;
-}
+/*.op{*/
+/*    border: 1px solid red;*/
+/*}*/
+/*.pp{*/
+/*    border: 1px solid green;*/
+/*}*/
 
 .error-image-animate {
     width: 400px;
