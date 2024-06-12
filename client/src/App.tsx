@@ -7,14 +7,14 @@ import Err404 from "./pages/Err404.tsx";
 import {Suspense} from "react";
 import Loading from "./component/Loading.tsx";
 import Testing from "./component/Testing.tsx";
-import Header from "./component/Header.tsx";
+import Home from "./pages/Home.tsx";
 
 function App() {
     return <Suspense fallback={<Loading/>}>
         <Routes>
             <Route path={'/'} element={<Layout/>}>
-                {/*<Route index element=<Register/>/>*/}
-                <Route index element=<Register/>/>
+                <Route index element=<Home/>/>
+                <Route path='register' element=<Register/>/>
                 <Route path='posts' element=<RequireAuth/>>
                     <Route index element=<Post/>/>
                 </Route>

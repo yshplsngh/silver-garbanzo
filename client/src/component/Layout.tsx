@@ -6,7 +6,7 @@ const Layout = () => {
     return <main>
         <Toaster richColors closeButton={true}/>
         <Header/>
-        <div className={'mt-20'}>
+        <div className={'mt-20 text-gray-50'}>
             <Outlet/>
         </div>
     </main>

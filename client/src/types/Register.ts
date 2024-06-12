@@ -5,6 +5,7 @@ enum errMsg {
     maxPass = "password should be max 100 length",
 }
 
+
 export const RegisterFormSchema = z.object({
     name: z.string().trim().min(1, "Name is required"),
     email: z.string().trim().toLowerCase().email(),

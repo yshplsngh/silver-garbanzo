@@ -1,15 +1,9 @@
-import {useQueryClient} from '@tanstack/react-query';
-import {profileType} from "../types/ProfileType.ts";
+import {useContext} from 'react'
+import ProfileContext from "./UserProvider.tsx";
+import {UseProfileContextType} from "./UserProvider.tsx"
 
-const useProfile = () => {
-    const queryClient = useQueryClient();
-    const query:profileType|undefined = queryClient.getQueryData(['userProfile']);
-    const id = query?.data.user.id || "";
-    const name = query?.data.user.name || "";
-    const email = query?.data.user.email || "";
-    const picture = query?.data.user.picture || "";
-    return {id,name,email,picture};
+const useProfile = ():UseProfileContextType => {
+    return useContext(ProfileContext)
 }
-
-export default useProfile;
+export default useProfile
 

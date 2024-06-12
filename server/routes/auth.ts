@@ -73,6 +73,7 @@ router.route('/register').post(async (req: Request, res: Response) => {
 })
 
 router.route('/me').get(requireUser,(req: Request, res: Response) => {
+    console.log(res.locals.user)
     return res.status(200).send(res.locals.user)
 })
 

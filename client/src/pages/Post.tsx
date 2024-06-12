@@ -4,7 +4,6 @@ import { useInView } from 'react-intersection-observer';
 import {bashApi} from "../api/bashApi.tsx";
 import Loading from "../component/Loading.tsx";
 import {toast} from "sonner";
-import Header from "../component/Header.tsx";
 
 interface PostType {
     id: number;
@@ -21,8 +20,8 @@ interface ResultType {
 }
 
 const Post = () => {
-    /* pageParam is actually a skipped number but it must be named with pageParam */
 
+    /* pageParam is actually a skipped number but it must be named with pageParam */
     const fetchDummyPosts = async ({ pageParam = 0 }) => {
         // const res = await axios.get(`https://dummyjson.com/posts?limit=${25}&skip=${pageParam}`);
         const res = await bashApi.get(`/post?limit=${10}&skip=${pageParam}`)
@@ -65,7 +64,6 @@ const Post = () => {
 
     return (
         <section>
-            <Header/>
             {data?.pages.map((page: ResultType, pageIndex: number) => (
                 <div key={pageIndex}>
                     {page.posts.map((post: PostType) => (
