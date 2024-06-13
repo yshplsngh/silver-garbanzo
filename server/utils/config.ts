@@ -5,7 +5,7 @@ export const NODE_ENV = 'development';
 
 export const PORT = process.env.PORT || 9000;
 
-export const ATT = process.env.ATT || '5m';
+export const ATT = process.env.ATT || '1m';
 
 export const PUBLIC_KEY =
     process.env.PUBLIC_KEY ||

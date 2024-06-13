@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import {ATT, PRIVATE_KEY, PUBLIC_KEY} from "./config";
 import {prisma} from "./pgConnect";
 
-export const signJWT = (data:Object, options?: jwt.SignOptions | undefined) => {
+export const signJWT = (data: Object, options?: jwt.SignOptions | undefined) => {
     return jwt.sign(
         data,
         PRIVATE_KEY,
@@ -10,18 +10,22 @@ export const signJWT = (data:Object, options?: jwt.SignOptions | undefined) => {
     );
 }
 
-interface decodedTokenType {
-    id: number,
-    email: string,
-    name: string,
-    picture: string
+type decodedTokenType = {
+    user: {
+        id: number,
+        name: string,
+        picture: string,
+        email: string,
+    },
+    iat: number,
+    exp: number
 }
 
 export const validateToken = (token: string) => {
     try {
-        const decoded:decodedTokenType = jwt.verify(token, PUBLIC_KEY) as decodedTokenType;
-        // console.log('23');
-        // console.log(decoded);
+        const decoded: decodedTokenType = jwt.verify(token, PUBLIC_KEY) as decodedTokenType;
+        console.log('refresh token content');
+        console.log(decoded);
         return {
             expired: false,
             decoded
@@ -34,17 +38,17 @@ export const validateToken = (token: string) => {
     }
 }
 
-export const reIssueAccessToken = async (refreshToken:string) => {
+export const reIssueAccessToken = async (refreshToken: string) => {
     const {decoded, expired} = validateToken(refreshToken);
 
-    if (decoded===null || expired) {
+    if (decoded === null || expired) {
         console.log('Refresh token expired 38');
         return false;
     }
-
+    console.log(decoded)
     const user = await prisma.user.findUnique({
         where: {
-            id: decoded.id
+            id: decoded.user.id
         },
         select: {
             id: true,
@@ -55,10 +59,10 @@ export const reIssueAccessToken = async (refreshToken:string) => {
     });
     console.log('find user from refreshtoken decoded id 53')
     // console.log(user)
-    if(!user){
+    if (!user) {
         console.log("user not found in 54");
         return false;
     }
     console.log('user present in RT token is found')
-    return signJWT({user}, {expiresIn:ATT});
+    return signJWT({user}, {expiresIn: ATT});
 }

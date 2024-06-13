@@ -1,9 +1,11 @@
 import {useEffect } from "react";
-import { useInfiniteQuery } from '@tanstack/react-query';
+import {InfiniteQueryObserverResult, useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import {bashApi} from "../api/bashApi.tsx";
 import Loading from "../component/Loading.tsx";
 import {toast} from "sonner";
+import {AxiosError} from "axios";
+import {AxiosErrorResponse} from "../features/UserProvider.tsx";
 
 interface PostType {
     id: number;
@@ -21,12 +23,16 @@ interface ResultType {
 
 const Post = () => {
 
+    const queryClient = useQueryClient();
+    const cachedData = queryClient.getQueryData<{pageParams:number[],pages:ResultType[]}>(['posts'])
+
+    // console.log(cachedData)
+
     /* pageParam is actually a skipped number but it must be named with pageParam */
-    const fetchDummyPosts = async ({ pageParam = 0 }) => {
-        // const res = await axios.get(`https://dummyjson.com/posts?limit=${25}&skip=${pageParam}`);
+    const fetchDummyPosts = async ({ pageParam = 0 }):Promise<ResultType> => {
         const res = await bashApi.get(`/post?limit=${10}&skip=${pageParam}`)
-        // console.log(typeof res)
         return res.data;
+
     };
 
     const {
@@ -36,17 +42,16 @@ const Post = () => {
         isError,
         fetchNextPage,
         isFetchingNextPage
-    } = useInfiniteQuery({
+    }:InfiniteQueryObserverResult<{pageParams:number[],pages:ResultType[]},AxiosError<AxiosErrorResponse>> = useInfiniteQuery({
         queryKey: ['posts'],
         queryFn: fetchDummyPosts,
         initialPageParam: 0,
+        initialData: cachedData,
         refetchOnWindowFocus:false,
         retry:false,
         getNextPageParam: (lastPage: ResultType) => {
             const { skip, limit, total } = lastPage;
-            // console.log({ skip, limit, total });
             const nextPage = skip + limit;
-            // console.log(nextPage);
             return nextPage < total ? nextPage : undefined;
         }
     });
@@ -59,9 +64,16 @@ const Post = () => {
         }
     }, [inView, fetchNextPage]);
 
-    if (isLoading) return <Loading/>
-    if (isError) return toast.error(`${(error as Error).message}`);
+    // console.log(data);
 
+    if (isLoading) return <Loading/>
+    if (isError) {
+        console.log(error?.response)
+        toast.error(error?.response?.data?.message || error.message);
+    }
+
+    // console.log(data)
+    // console.log(cachedData)
     return (
         <section>
             {data?.pages.map((page: ResultType, pageIndex: number) => (
@@ -74,8 +86,8 @@ const Post = () => {
                     ))}
                 </div>
             ))}
-            <div>{isError && (error as Error).message}</div>
-            <div ref={ref} className={'setting'}>{isFetchingNextPage && <Loading/>}</div>
+            <div className={'text-red-500'}>{isError && `${error?.response?.data?.message}pp`}</div>
+            <div ref={ref}>{isFetchingNextPage && <Loading/>}</div>
         </section>
     );
 };

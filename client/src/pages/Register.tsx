@@ -4,12 +4,15 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {RegisterFormSchema, RegisterFormType} from "../types/Register.ts";
 import {useMutation} from "@tanstack/react-query";
 import {bashApi} from "../api/bashApi.tsx";
-import axios from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {toast} from 'sonner'
 import {NavigateFunction, useNavigate} from "react-router-dom";
+import {AxiosErrorResponse, UserProfileType} from "../features/UserProvider.tsx";
+import useProfile from "../features/useProfile.ts";
+
 
 const Register = () => {
-
+    const {setProfile} = useProfile()
     const navigate: NavigateFunction = useNavigate();
     const [viewPassword, setViewPassword] = useState<boolean>(false);
     const [viewCPassword, setViewCPassword] = useState<boolean>(false);
@@ -20,32 +23,28 @@ const Register = () => {
         , formState: {errors, isValid}
     } = useForm<RegisterFormType>({resolver: zodResolver(RegisterFormSchema)})
 
-    const registerMutation = useMutation({
+    const registerMutation = useMutation<AxiosResponse<UserProfileType>,AxiosError<AxiosErrorResponse>,RegisterFormType>({
         mutationFn: (data: RegisterFormType) => {
             return bashApi.post('/user/register', data)
         },
         onSuccess: () => {
             toast.success("User successfully registered!");
-            // here i will navigate user to post page
-            navigate('/posts')
+            navigate('/')
         },
-        onError: (error: Error) => {
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data || "An error occurred. Please try again later.")
-            } else {
-                toast.error("An unknown error occurred")
-            }
+        onError: (error) => {
+                toast.error(error.response?.data?.message || "An error occurred. Please try again later.")
         },
     })
     const onSubmit: SubmitHandler<RegisterFormType> = async (data: RegisterFormType) => {
         if (isValid) {
-            console.log(isValid);
-            console.log(data);
+            // console.log(isValid);
+            // console.log(data);
             try {
-                await registerMutation.mutateAsync(data);
-            } catch (err) {
+                const register = await registerMutation.mutateAsync(data);
+                setProfile(register.data);
+            } catch (error) {
                 // Error handling is already done in onError callback of useMutation
-                console.log(`Unexpected Error ${err}`)
+                console.log(`Error: ${error}`)
             }
         }
     }

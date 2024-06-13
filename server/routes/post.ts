@@ -26,7 +26,7 @@ router.route('/').get(requireUser, async (req: Request, res: Response) => {
         ])
 
         if (!posts.length) {
-            return res.status(422).send("no posts found");
+            return res.status(422).send({message:"no posts found"});
         }
 
         const result = {

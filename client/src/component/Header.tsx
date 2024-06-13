@@ -3,12 +3,14 @@ import {GrClose} from "react-icons/gr";
 import {GiHamburgerMenu} from "react-icons/gi";
 import {Link} from "react-router-dom";
 import '../assets/project.css'
+import useProfile from "../features/useProfile.ts";
 
 function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    // here i want to get email and name
-    const email = "yashpal@9rx"
-    const name = "yashpal"
+
+    const {profile} = useProfile();
+    const {email, name} = profile.user;
+
     return (
         <header className={'z-20 fixed w-full top-4'}>
             <nav
@@ -17,17 +19,17 @@ function Header() {
                     <Link to={"/"}>
                         <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Home</li>
                     </Link>
+                    <Link to={"/posts"}>
+                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                            Posts
+                        </li>
+                    </Link>
                     {!email && <Link to={"/register"}>
                         <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Register</li>
                     </Link>}
                     <Link to={"/tac"}>
                         <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
                             Privacy Policy
-                        </li>
-                    </Link>
-                    <Link to={"/posts"}>
-                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
-                            Posts
                         </li>
                     </Link>
                     {email && <Link to={'/setting/password'} className={''}>
@@ -40,7 +42,7 @@ function Header() {
                 <nav className={'sm:hidden relative flex items-center'}>
                     <button onClick={() => setIsMenuOpen(prev => !prev)}>{isMenuOpen ? <GrClose/> :
                         <GiHamburgerMenu/>}</button>
-                    {!isMenuOpen &&
+                    {isMenuOpen &&
                         <ul className={'pp flex flex-col absolute top-8 p-1 whitespace-nowrap bg-gray-50 rounded-2xl px-3 py-3 space-y-2'}>
                             <Link to={"/"}>
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Home</li>
@@ -49,8 +51,13 @@ function Header() {
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Register</li>
                             </Link>}
                             <Link to={"/tac"}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Privacy
-                                    Policy
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                                    Posts
+                                </li>
+                            </Link>
+                            <Link to={"/posts"}>
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                                    Privacy Policy
                                 </li>
                             </Link>
                             {email && <Link to={'/setting/password'} className={''}>

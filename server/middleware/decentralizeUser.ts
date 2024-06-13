@@ -15,14 +15,14 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
 
     const {decoded,expired} = validateToken(accessToken);
     if(decoded){
-        // console.log(16)
-        // console.log(decoded)
+        console.log(16)
+        console.log(decoded)
         res.locals.user = decoded
         return next();
     }
     if(expired && refreshToken){
         console.log('access token is expired 22');
-        console.log('issuing refresh token');
+        console.log('issuing token by refresh token');
         const newAccessToken = await reIssueAccessToken(refreshToken);
         if(newAccessToken){
             res.cookie("accessToken", newAccessToken,accessTokenCookieOptions);

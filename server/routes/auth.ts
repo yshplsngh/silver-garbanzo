@@ -5,9 +5,10 @@ import bcrypt from 'bcrypt'
 import {RegisterFormSchema} from "../types/auth";
 import returnMsg from "../utils/returnMsg";
 import {prisma} from "../utils/pgConnect";
-import {signJWT} from "../utils/jwtUtils";
+import {signJWT, validateToken} from "../utils/jwtUtils";
 import {requireUser} from "../middleware/requireUser";
 import {ATT} from "../utils/config";
+import rateLimit from "../middleware/rateLimiter";
 
 const router: Router = express.Router();
 
@@ -18,12 +19,12 @@ export const accessTokenCookieOptions: CookieOptions = {
     secure: false,
 };
 
-router.route('/register').post(async (req: Request, res: Response) => {
+router.route('/register').post(rateLimit,async (req: Request, res: Response) => {
     try {
         const isValid = RegisterFormSchema.safeParse(req.body);
         if (!isValid.success) {
             const msg: string = returnMsg(isValid);
-            return res.status(422).send(msg);
+            return res.status(422).send({message:msg});
         }
         const userFound = await prisma.user.findUnique({
             where: {
@@ -35,7 +36,7 @@ router.route('/register').post(async (req: Request, res: Response) => {
         })
 
         if (userFound) {
-            return res.status(409).send('User already exists');
+            return res.status(409).send({message:'User already exists'});
         }
 
         const hashedPass = await bcrypt.hash(isValid.data.password, 10);
@@ -54,9 +55,11 @@ router.route('/register').post(async (req: Request, res: Response) => {
                 picture: true,
             }
         })
-        const accessToken = signJWT(user,{expiresIn:ATT})
-        const refreshToken = signJWT(user,{expiresIn:"1y"})
 
+        const accessToken = signJWT({user},{expiresIn:ATT})
+        const refreshToken = signJWT({user},{expiresIn:"1y"})
+
+        const {decoded} = validateToken(accessToken);
         const refreshTokenCookieOptions: CookieOptions = {
             ...accessTokenCookieOptions,
             maxAge: 3.154e10, // 1 year
@@ -65,7 +68,7 @@ router.route('/register').post(async (req: Request, res: Response) => {
         res.cookie('accessToken', accessToken, accessTokenCookieOptions);
         res.cookie('refreshToken', refreshToken,refreshTokenCookieOptions);
 
-        return res.status(200).send({user});
+        return res.status(200).send(decoded);
     } catch (error) {
         console.log(error);
         return res.status(500).send(error);
@@ -73,7 +76,7 @@ router.route('/register').post(async (req: Request, res: Response) => {
 })
 
 router.route('/me').get(requireUser,(req: Request, res: Response) => {
-    console.log(res.locals.user)
+    // console.log(res.locals.user)
     return res.status(200).send(res.locals.user)
 })
 

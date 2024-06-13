@@ -10,6 +10,7 @@ import {pgConnect} from "./utils/pgConnect";
 import {deserializeUser} from "./middleware/decentralizeUser";
 import {postRouter} from "./routes/post";
 import {operation} from "./utils/testing";
+import rateLimit from "./middleware/rateLimiter";
 
 
 app.use(cors({
@@ -30,7 +31,7 @@ app.use('/health',(req:Request,res:Response)=>{
     })
 })
 app.use('/api/user',userRouter)
-app.use('/api/post',postRouter)
+app.use('/api/post',rateLimit,postRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
