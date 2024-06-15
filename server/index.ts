@@ -5,7 +5,7 @@ import cors from "cors"
 
 const app:Express = express();
 import {PORT} from "./utils/config";
-import {userRouter} from "./routes/auth";
+import {sendEmail, userRouter} from "./routes/auth";
 import {pgConnect} from "./utils/pgConnect";
 import {deserializeUser} from "./middleware/decentralizeUser";
 import {postRouter} from "./routes/post";
@@ -35,5 +35,8 @@ app.use('/api/post',rateLimit,postRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
+    // Array.from({length:10}).map(async ()=>{
+    //     await sendEmail()
+    // })
     await pgConnect();
 })
