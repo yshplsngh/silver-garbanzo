@@ -6,7 +6,7 @@ enum errMsg {
 }
 
 
-export const PasswordSchema = z.object({
+export const PasswordFormSchema = z.object({
     id:z.number(),
     oldPassword: z.string().trim(),
     newPassword: z.string().trim().min(5, errMsg.minPass).max(100, errMsg.maxPass),

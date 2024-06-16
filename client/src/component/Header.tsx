@@ -32,7 +32,7 @@ function Header() {
                             Privacy Policy
                         </li>
                     </Link>
-                    {email && <Link to={'/setting/password'} className={''}>
+                    {email && <Link to={'/resetPassword'} className={''}>
                         <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
                             Reset Password
                         </li>
@@ -60,7 +60,7 @@ function Header() {
                                     Privacy Policy
                                 </li>
                             </Link>
-                            {email && <Link to={'/setting/password'} className={''}>
+                            {email && <Link to={'/resetPassword'} className={''}>
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Reset
                                     Password
                                 </li>

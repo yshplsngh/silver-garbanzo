@@ -8,6 +8,7 @@ import {Suspense} from "react";
 import Loading from "./component/Loading.tsx";
 import Testing from "./component/Testing.tsx";
 import Home from "./pages/Home.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 
 function App() {
     return <Suspense fallback={<Loading/>}>
@@ -15,8 +16,9 @@ function App() {
             <Route path={'/'} element={<Layout/>}>
                 <Route index element=<Home/>/>
                 <Route path='register' element=<Register/>/>
-                <Route path='posts' element=<RequireAuth/>>
-                    <Route index element=<Post/>/>
+                <Route element=<RequireAuth/>>
+                    <Route path={'posts'} element=<Post/>/>
+                    <Route path={'resetPassword'} element={<ResetPassword/>}/>
                 </Route>
                 <Route path={'test'} element={<Testing/>}/>
                 <Route path={'*'} element={<Err404/>}/>

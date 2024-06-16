@@ -132,7 +132,7 @@ const Register = () => {
             </div>
 
             <button type='submit'>
-                Submit
+                Register
             </button>
         </form>
     </Fragment>

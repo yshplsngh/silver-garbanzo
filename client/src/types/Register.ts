@@ -5,6 +5,17 @@ enum errMsg {
     maxPass = "password should be max 100 length",
 }
 
+export const PasswordFormSchema = z.object({
+    id:z.number(),
+    oldPassword: z.string().trim(),
+    newPassword: z.string().trim().min(5, errMsg.minPass).max(100, errMsg.maxPass),
+    newConfirmPassword: z.string().trim(),
+}).refine(data => data.newPassword === data.newConfirmPassword, {
+    message: "password don't match",
+    path: ["confirmPassword"]
+})
+export type PasswordFormType = z.infer<typeof PasswordFormSchema>
+
 
 export const RegisterFormSchema = z.object({
     name: z.string().trim().min(1, "Name is required"),
@@ -20,5 +31,4 @@ export const RegisterFormSchema = z.object({
     message: "Terms and conditions must be accepted",
     path: ["tac"]
 })
-
 export type RegisterFormType = z.infer<typeof RegisterFormSchema>

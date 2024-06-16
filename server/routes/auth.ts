@@ -3,7 +3,7 @@ import type {Request, Response, Router} from "express";
 import bcrypt from 'bcrypt';
 import nodemailer from "nodemailer";
 
-import {PasswordSchema, RegisterFormSchema} from "../types/auth";
+import {PasswordFormSchema, RegisterFormSchema} from "../types/auth";
 import returnMsg from "../utils/returnMsg";
 import {prisma} from "../utils/pgConnect";
 import {signJWT, validateToken} from "../utils/jwtUtils";
@@ -81,17 +81,16 @@ router.route('/me').get(requireUser, (req: Request, res: Response) => {
     return res.status(200).send(res.locals.user)
 })
 
+
 router.route('/passwordReset').post(requireUser, async (req: Request, res: Response) => {
     try {
-        const isValid = PasswordSchema.safeParse(req.body);
+        const isValid = PasswordFormSchema.safeParse(req.body);
         if (!isValid.success) {
             const msg: string = returnMsg(isValid);
             return res.status(422).send({message: msg});
         }
         const userFound = await prisma.user.findUnique({
-            where: {
-                id: isValid.data.id
-            }
+            where: {id: isValid.data.id}
         })
         if (!userFound) {
             return res.status(404).send({message: 'User not found'});
@@ -105,12 +104,8 @@ router.route('/passwordReset').post(requireUser, async (req: Request, res: Respo
         const newHashedPassword = await bcrypt.hash(isValid.data.newPassword, 10);
 
         const result = await prisma.user.update({
-            data: {
-                password: newHashedPassword
-            },
-            where: {
-                id: isValid.data.id
-            }
+            data: {password: newHashedPassword},
+            where: {id: isValid.data.id}
         })
         if (!result) {
             return res.status(500).send({message: "operation Failed!"})
@@ -118,10 +113,11 @@ router.route('/passwordReset').post(requireUser, async (req: Request, res: Respo
         res.status(200).send({message: "Password Updated"});
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).send(error);
     }
 })
+
 
 const sendEmail = async () => {
     let testAccount = await nodemailer.createTestAccount();

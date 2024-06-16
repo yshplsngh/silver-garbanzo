@@ -86,7 +86,7 @@ const Post = () => {
                     ))}
                 </div>
             ))}
-            <div className={'text-red-500'}>{isError && `${error?.response?.data?.message}pp`}</div>
+            <div className={'text-red-500'}>{isError && `${error?.response?.data?.message}`}</div>
             <div ref={ref}>{isFetchingNextPage && <Loading/>}</div>
         </section>
     );

@@ -1,7 +1,6 @@
 import {createContext, ReactNode, useState, ReactElement, useEffect} from 'react'
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {bashApi} from "../api/bashApi.tsx";
-import {toast} from "sonner";
 import {AxiosError} from "axios";
 
 export type UserProfileType = {
@@ -33,11 +32,15 @@ const initialState: UserProfileType = {
 export type UseProfileContextType = {
     profile: UserProfileType,
     setProfile: (profile: UserProfileType) => void,
+    isSuccess: boolean,
+    isLoading:boolean,
 }
 
 const initContextState: UseProfileContextType = {
     profile: initialState,
-    setProfile:()=>{}
+    setProfile:()=>{},
+    isSuccess:false,
+    isLoading:true,
 }
 
 const ProfileContext = createContext<UseProfileContextType>(initContextState)
@@ -50,7 +53,7 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
     const queryClient = useQueryClient();
     const cachedData = queryClient.getQueryData<UserProfileType>(["userProfile"]);
 
-    const {data, error, isError, isSuccess} = useQuery<UserProfileType, AxiosError<AxiosErrorResponse>>({
+    const {data, error, isError, isSuccess,isLoading} = useQuery<UserProfileType, AxiosError<AxiosErrorResponse>>({
         queryKey: ['userProfile'],
         queryFn: () => bashApi.get('/user/me')
             .then(res => res.data),
@@ -65,15 +68,15 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
             setProfile(data);
             console.log(data)
         } else if (isError && error) {
-            if (error?.response?.status !== 435) {
-                toast.error(error.response?.data?.message);
-            }
+            // if (error?.response?.status !== 435) {
+            //     toast.error(error.response?.data?.message);
+            // }
             setProfile(initialState);
         }
     }, [isSuccess, data, isError]);
 
     return (
-        <ProfileContext.Provider value={{profile,setProfile}}>
+        <ProfileContext.Provider value={{profile,setProfile,isSuccess,isLoading}}>
             {children}
         </ProfileContext.Provider>
     )
