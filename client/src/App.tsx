@@ -18,7 +18,7 @@ function App() {
                 <Route path='register' element=<Register/>/>
                 <Route element=<RequireAuth/>>
                     <Route path={'posts'} element=<Post/>/>
-                    <Route path={'resetPassword'} element={<ResetPassword/>}/>
+                    <Route path={'resetPassword'} element=<ResetPassword/>/>
                 </Route>
                 <Route path={'test'} element={<Testing/>}/>
                 <Route path={'*'} element={<Err404/>}/>

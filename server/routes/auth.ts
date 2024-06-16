@@ -82,8 +82,9 @@ router.route('/me').get(requireUser, (req: Request, res: Response) => {
 })
 
 
-router.route('/passwordReset').post(requireUser, async (req: Request, res: Response) => {
+router.route('/resetPassword').post(requireUser, async (req: Request, res: Response) => {
     try {
+        // console.log(req.body);
         const isValid = PasswordFormSchema.safeParse(req.body);
         if (!isValid.success) {
             const msg: string = returnMsg(isValid);

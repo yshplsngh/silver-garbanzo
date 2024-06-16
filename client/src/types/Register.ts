@@ -6,13 +6,12 @@ enum errMsg {
 }
 
 export const PasswordFormSchema = z.object({
-    id:z.number(),
-    oldPassword: z.string().trim(),
+    oldPassword: z.string().trim().min(1,"old Password Required"),
     newPassword: z.string().trim().min(5, errMsg.minPass).max(100, errMsg.maxPass),
     newConfirmPassword: z.string().trim(),
 }).refine(data => data.newPassword === data.newConfirmPassword, {
     message: "password don't match",
-    path: ["confirmPassword"]
+    path: ["newConfirmPassword"]
 })
 export type PasswordFormType = z.infer<typeof PasswordFormSchema>
 
