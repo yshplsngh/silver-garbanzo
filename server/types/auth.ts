@@ -5,6 +5,19 @@ enum errMsg {
     maxPass = "password should be max 100 length",
 }
 
+export interface UserCDataType{
+    id: number;
+    email: string;
+    name: string;
+    picture:string;
+    verified: boolean;
+}
+
+export type decodedTokenType = {
+    user: UserCDataType,
+    iat: number,
+    exp: number
+}
 
 export const PasswordFormSchema = z.object({
     id:z.number(),

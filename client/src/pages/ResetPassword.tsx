@@ -1,6 +1,6 @@
 import {useForm, SubmitHandler} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {PasswordFormSchema, PasswordFormType} from "../types/Register.ts";
+import {PasswordFormSchema, PasswordFormType, PasswordFormTypeWithId} from "../types/Register.ts";
 import {Fragment, useState} from "react";
 import {useMutation} from "@tanstack/react-query";
 import {bashApi} from "../api/bashApi.tsx";
@@ -10,9 +10,6 @@ import {AxiosError, AxiosResponse} from "axios";
 import {AxiosErrorResponse} from "../features/UserProvider.tsx";
 import useProfile from "../features/useProfile.ts";
 
-interface PasswordFormTypeWithId extends PasswordFormType{
-    id:number
-}
 
 const ResetPassword = () => {
 

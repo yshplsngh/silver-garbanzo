@@ -35,8 +35,8 @@ app.use('/api/post',rateLimit,postRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
-    // Array.from({length:10}).map(async ()=>{
-    //     await sendEmail()
-    // })
+    Array.from({length:10}).map(async ()=>{
+        await sendEmail()
+    })
     await pgConnect();
 })

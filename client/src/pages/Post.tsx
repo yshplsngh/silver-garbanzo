@@ -6,20 +6,8 @@ import Loading from "../component/Loading.tsx";
 import {toast} from "sonner";
 import {AxiosError} from "axios";
 import {AxiosErrorResponse} from "../features/UserProvider.tsx";
+import {PostType, ResultType} from "../types/Post.ts";
 
-interface PostType {
-    id: number;
-    title: string;
-    body: string;
-    // Add other post fields if necessary
-}
-
-interface ResultType {
-    posts: PostType[];
-    limit: number;
-    skip: number;
-    total: number;
-}
 
 const Post = () => {
 

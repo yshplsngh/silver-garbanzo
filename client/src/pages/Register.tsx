@@ -7,8 +7,9 @@ import {bashApi} from "../api/bashApi.tsx";
 import {AxiosError, AxiosResponse} from "axios";
 import {toast} from 'sonner'
 import {NavigateFunction, useNavigate} from "react-router-dom";
-import {AxiosErrorResponse, UserProfileType} from "../features/UserProvider.tsx";
+import {AxiosErrorResponse} from "../features/UserProvider.tsx";
 import useProfile from "../features/useProfile.ts";
+import {UserProfileType} from "../types/User.ts";
 
 
 const Register = () => {
@@ -29,7 +30,7 @@ const Register = () => {
         },
         onSuccess: () => {
             toast.success("User successfully registered!");
-            navigate('/')
+            navigate('/verifyOTP')
         },
         onError: (error) => {
                 toast.error(error.response?.data?.message || "An error occurred. Please try again later.")

@@ -7,6 +7,10 @@ export const PORT = process.env.PORT || 9000;
 
 export const ATT = process.env.ATT || '1m';
 
+export const EMAIL = process.env.EMAIL || 'yashpal@gmail.com';
+
+export const EMAIL_PASS = process.env.EMAIL_PASS || 'emailId_password';
+
 export const PUBLIC_KEY =
     process.env.PUBLIC_KEY ||
     "-----BEGIN PUBLIC KEY-----\n" +

@@ -20,7 +20,7 @@ const Loading = () => {
 
     return (
         <div style={loadingStyle}>
-            <SyncLoader color="#008000" speedMultiplier={0.7} margin={4}/>
+            <SyncLoader color="#ffffff" speedMultiplier={0.7} margin={4}/>
         </div>
     );
 }

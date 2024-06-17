@@ -15,6 +15,10 @@ export const PasswordFormSchema = z.object({
 })
 export type PasswordFormType = z.infer<typeof PasswordFormSchema>
 
+export interface PasswordFormTypeWithId extends PasswordFormType{
+    id:number
+}
+
 
 export const RegisterFormSchema = z.object({
     name: z.string().trim().min(1, "Name is required"),

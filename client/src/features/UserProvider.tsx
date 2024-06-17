@@ -2,17 +2,8 @@ import {createContext, ReactNode, useState, ReactElement, useEffect} from 'react
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {bashApi} from "../api/bashApi.tsx";
 import {AxiosError} from "axios";
+import {UserProfileType} from "../types/User.ts";
 
-export type UserProfileType = {
-    user: {
-        id: number,
-        name: string,
-        picture: string,
-        email: string,
-    },
-    iat: number,
-    exp: number
-}
 
 export interface AxiosErrorResponse {
     message: string;
@@ -23,7 +14,8 @@ const initialState: UserProfileType = {
         id: 0,
         name: '',
         picture: '',
-        email: ''
+        email: '',
+        verified:false
     },
     iat: 0,
     exp: 0

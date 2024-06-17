@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import {ATT, PRIVATE_KEY, PUBLIC_KEY} from "./config";
 import {prisma} from "./pgConnect";
+import {decodedTokenType, UserCDataType} from "../types/auth";
 
 export const signJWT = (data: Object, options?: jwt.SignOptions | undefined) => {
     return jwt.sign(
@@ -10,16 +11,6 @@ export const signJWT = (data: Object, options?: jwt.SignOptions | undefined) => 
     );
 }
 
-type decodedTokenType = {
-    user: {
-        id: number,
-        name: string,
-        picture: string,
-        email: string,
-    },
-    iat: number,
-    exp: number
-}
 
 export const validateToken = (token: string) => {
     try {
@@ -46,7 +37,7 @@ export const reIssueAccessToken = async (refreshToken: string) => {
         return false;
     }
     console.log(decoded)
-    const user = await prisma.user.findUnique({
+    const user:UserCDataType|null = await prisma.user.findUnique({
         where: {
             id: decoded.user.id
         },
@@ -55,8 +46,10 @@ export const reIssueAccessToken = async (refreshToken: string) => {
             email: true,
             name: true,
             picture: true,
+            verified: true,
         }
     });
+
     console.log('find user from refreshtoken decoded id 53')
     // console.log(user)
     if (!user) {

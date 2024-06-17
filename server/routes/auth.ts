@@ -3,12 +3,12 @@ import type {Request, Response, Router} from "express";
 import bcrypt from 'bcrypt';
 import nodemailer from "nodemailer";
 
-import {PasswordFormSchema, RegisterFormSchema} from "../types/auth";
+import {PasswordFormSchema, RegisterFormSchema, UserCDataType} from "../types/auth";
 import returnMsg from "../utils/returnMsg";
 import {prisma} from "../utils/pgConnect";
 import {signJWT, validateToken} from "../utils/jwtUtils";
 import {requireUser} from "../middleware/requireUser";
-import {ATT} from "../utils/config";
+import {ATT, EMAIL, EMAIL_PASS} from "../utils/config";
 import rateLimit from "../middleware/rateLimiter";
 
 const router: Router = express.Router();
@@ -42,20 +42,29 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
 
         const hashedPass = await bcrypt.hash(isValid.data.password, 10);
 
-        const user = await prisma.user.create({
+        const user:UserCDataType = await prisma.user.create({
             data: {
                 email: isValid.data.email,
                 password: hashedPass,
                 name: isValid.data.name,
                 picture: isValid.data.picture,
+                verified: false
             },
             select: {
                 id: true,
                 email: true,
                 name: true,
                 picture: true,
+                verified: true
             }
         })
+
+        if (!user) {
+            return res.status(500).send({message: "operation Failed!"})
+        }
+
+        //TODO: here i will call sendOTP function
+        await sendOTPEmail({email:user.email});
 
         const accessToken = signJWT({user}, {expiresIn: ATT})
         const refreshToken = signJWT({user}, {expiresIn: "1y"})
@@ -75,6 +84,41 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
         return res.status(500).send(error);
     }
 })
+
+
+const sendOTPEmail = async ({email}:{email:string}) => {
+    try{
+        const otp = Math.floor(1000+Math.random()*9000);
+
+    }catch (error){
+
+    }
+}
+
+let counter=0;
+const sendEmail = async () => {
+    // let testAccount = await nodemailer.createTestAccount();
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        secure: true,
+        port: 465,
+        auth: {
+            user: EMAIL,
+            pass: EMAIL_PASS
+        }
+    });
+
+    let info = await transporter.sendMail({
+        from: '"Yashpal Singh" <yashpalsinght9@gmail.com>',
+        to: "yadavshiva8755@gmail.com",
+        subject: "yashpal is boss",
+        text: "Yashpal Maharaj ki Jay",
+        html: "<b>Yashpal is the Boss</b>"
+    })
+
+    console.log(counter++)
+}
 
 router.route('/me').get(requireUser, (req: Request, res: Response) => {
     // console.log(res.locals.user)
@@ -120,28 +164,6 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
 })
 
 
-const sendEmail = async () => {
-    let testAccount = await nodemailer.createTestAccount();
 
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        secure: true,
-        port: 465,
-        auth: {
-            user: 'yashpalsinght9@gmail.com',
-            pass: 'sjypxncosczilqfc'
-        }
-    });
-
-    let info = await transporter.sendMail({
-        from: '"Yashpal Singh" <yashpalsinght9@gmail.com>',
-        to: "@gmail.com",
-        subject: "yashpal is boss",
-        text: "Yashpal Maharaj ki Jay",
-        html: "<b>Hello testing mail</b>"
-    })
-
-    console.log(info)
-}
 
 export {router as userRouter, sendEmail}
