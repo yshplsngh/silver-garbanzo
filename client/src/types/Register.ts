@@ -5,6 +5,14 @@ enum errMsg {
     maxPass = "password should be max 100 length",
 }
 
+export const OTPFromSchema = z.object({
+    otp: z.string().length(4, "OTP must be exactly 4 characters long")
+});
+export type OTPFormType = z.infer<typeof OTPFromSchema>
+export interface OTPFormTypeWithId extends OTPFormType {
+    userId:number
+}
+
 export const PasswordFormSchema = z.object({
     oldPassword: z.string().trim().min(1,"old Password Required"),
     newPassword: z.string().trim().min(5, errMsg.minPass).max(100, errMsg.maxPass),
@@ -14,7 +22,6 @@ export const PasswordFormSchema = z.object({
     path: ["newConfirmPassword"]
 })
 export type PasswordFormType = z.infer<typeof PasswordFormSchema>
-
 export interface PasswordFormTypeWithId extends PasswordFormType{
     id:number
 }

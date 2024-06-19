@@ -5,7 +5,7 @@ import {AxiosError} from "axios";
 import {UserProfileType} from "../types/User.ts";
 
 
-export interface AxiosErrorResponse {
+export interface AxiosOMessageResponse {
     message: string;
 }
 
@@ -45,12 +45,12 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
     const queryClient = useQueryClient();
     const cachedData = queryClient.getQueryData<UserProfileType>(["userProfile"]);
 
-    const {data, error, isError, isSuccess,isLoading} = useQuery<UserProfileType, AxiosError<AxiosErrorResponse>>({
+    const {data, error, isError, isSuccess,isLoading} = useQuery<UserProfileType, AxiosError<AxiosOMessageResponse>>({
         queryKey: ['userProfile'],
         queryFn: () => bashApi.get('/user/me')
             .then(res => res.data),
         initialData: cachedData,
-        retry: false,
+        retry: 2,
         refetchOnWindowFocus: true,
         refetchOnReconnect: true
     })

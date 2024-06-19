@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Otpverify" ALTER COLUMN "otp" SET DATA TYPE TEXT;

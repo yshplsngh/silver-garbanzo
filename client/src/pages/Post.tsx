@@ -5,7 +5,7 @@ import {bashApi} from "../api/bashApi.tsx";
 import Loading from "../component/Loading.tsx";
 import {toast} from "sonner";
 import {AxiosError} from "axios";
-import {AxiosErrorResponse} from "../features/UserProvider.tsx";
+import {AxiosOMessageResponse} from "../features/UserProvider.tsx";
 import {PostType, ResultType} from "../types/Post.ts";
 
 
@@ -30,7 +30,7 @@ const Post = () => {
         isError,
         fetchNextPage,
         isFetchingNextPage
-    }:InfiniteQueryObserverResult<{pageParams:number[],pages:ResultType[]},AxiosError<AxiosErrorResponse>> = useInfiniteQuery({
+    }:InfiniteQueryObserverResult<{pageParams:number[],pages:ResultType[]},AxiosError<AxiosOMessageResponse>> = useInfiniteQuery({
         queryKey: ['posts'],
         queryFn: fetchDummyPosts,
         initialPageParam: 0,

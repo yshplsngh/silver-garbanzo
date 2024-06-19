@@ -19,6 +19,16 @@ export type decodedTokenType = {
     exp: number
 }
 
+export const OTPDataType = z.object({
+    userId:z.number(),
+    email:z.string().email().toLowerCase().trim()
+})
+
+export const OTPVerifyDataType = z.object({
+    userId:z.number(),
+    otp: z.string().length(4, "OTP must be exactly 4 characters long")
+})
+
 export const PasswordFormSchema = z.object({
     id:z.number(),
     oldPassword: z.string().trim(),

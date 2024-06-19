@@ -7,27 +7,27 @@ import {bashApi} from "../api/bashApi.tsx";
 import {useNavigate} from "react-router-dom";
 import {toast} from "sonner";
 import {AxiosError, AxiosResponse} from "axios";
-import {AxiosErrorResponse} from "../features/UserProvider.tsx";
+import {AxiosOMessageResponse} from "../features/UserProvider.tsx";
 import useProfile from "../features/useProfile.ts";
 
 
 const ResetPassword = () => {
 
-    const {profile:{user:{id:id}}} = useProfile();
+    const {profile: {user: {id: id}}} = useProfile();
 
     const navigate = useNavigate();
     const [viewPassword, setViewPassword] = useState(
         {oldPassword: false, newPassword: false, newConfirmPassword: false});
 
-    const passwordChangeMutation = useMutation<AxiosResponse,AxiosError<AxiosErrorResponse>,PasswordFormTypeWithId>({
-        mutationFn:(data:PasswordFormTypeWithId)=>{
-            return bashApi.post('/user/resetPassword',data)
+    const passwordChangeMutation = useMutation<AxiosResponse, AxiosError<AxiosOMessageResponse>, PasswordFormTypeWithId>({
+        mutationFn: (data: PasswordFormTypeWithId) => {
+            return bashApi.post('/user/resetPassword', data)
         },
-        onSuccess:()=>{
+        onSuccess: () => {
             toast.success("password changed successfully!");
             navigate('/')
         },
-        onError:(error)=>{
+        onError: (error) => {
             toast.error(error.response?.data?.message || "An error occurred. Please try again later.")
         }
     })
@@ -39,14 +39,9 @@ const ResetPassword = () => {
         formState: {errors, isValid}
     } = useForm<PasswordFormType>({resolver: zodResolver(PasswordFormSchema)});
 
-    const onSubmit: SubmitHandler<PasswordFormType> = async (data: PasswordFormType) => {
-        if(isValid){
-            try{
-                await passwordChangeMutation.mutateAsync({...data,id})
-                // const register =
-            }catch (error){
-                console.log(`Error: ${error}`)
-            }
+    const onSubmit: SubmitHandler<PasswordFormType> = (data: PasswordFormType) => {
+        if (isValid) {
+            passwordChangeMutation.mutate({...data, id});
         }
     };
 

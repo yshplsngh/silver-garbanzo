@@ -8,8 +8,7 @@ import useProfile from "../features/useProfile.ts";
 function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const {profile} = useProfile();
-    const {email, name} = profile.user;
+    const {profile:{user:{email,name,verified}}} = useProfile();
 
     return (
         <header className={'z-20 fixed w-full top-4'}>
@@ -35,6 +34,11 @@ function Header() {
                     {email && <Link to={'/resetPassword'} className={''}>
                         <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
                             Reset Password
+                        </li>
+                    </Link>}
+                    {email && !verified && <Link to={'/verifyOTP'} className={'text-red-400'}>
+                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-red-600'}>
+                            Verify Account
                         </li>
                     </Link>}
                 </ul>
@@ -63,6 +67,11 @@ function Header() {
                             {email && <Link to={'/resetPassword'} className={''}>
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Reset
                                     Password
+                                </li>
+                            </Link>}
+                            {email && !verified && <Link to={'/verifyOTP'} className={''}>
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                                    Verify Account
                                 </li>
                             </Link>}
                         </ul>
