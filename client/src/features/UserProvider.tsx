@@ -50,7 +50,7 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
         queryFn: () => bashApi.get('/user/me')
             .then(res => res.data),
         initialData: cachedData,
-        retry: 2,
+        retry: false,
         refetchOnWindowFocus: true,
         refetchOnReconnect: true
     })

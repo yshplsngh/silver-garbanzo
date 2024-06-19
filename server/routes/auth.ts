@@ -115,7 +115,7 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
 
         await transporter.sendMail({
             from: '"Brain Op" <yashpalsinght9@gmail.com>',
-            to: "yashpal9rx@gmail.com",
+            to: isValid.data.email,
             subject: "SignUp Verification for BrainOp",
             text: "SignUp Verification for BrainOp",
             html: `<b>Enter ${otp} in the app to verify your email address</b>`

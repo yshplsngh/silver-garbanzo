@@ -7,7 +7,7 @@ import {toast} from "sonner";
 import {AxiosError, AxiosResponse} from "axios";
 import {AxiosOMessageResponse} from "../features/UserProvider.tsx";
 import {useNavigate} from "react-router-dom";
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 import useProfile from "../features/useProfile.ts";
 import ARVerified from "./ARVerified.tsx";
 
@@ -20,8 +20,10 @@ const VerifyOTP = () => {
 
     const navigate = useNavigate();
 
-    const {profile: {user: {id: cId, email: cEmail,verified}}} = useProfile();
-
+    // const {profile: {user: {id: cId, email: cEmail,verified}},setProfile} = useProfile();
+    const {profile, setProfile} = useProfile()
+    // console.log(profile);
+    const {user: {id: cId, email: cEmail, verified}} = profile
     const sendOTPMutation = useMutation<AxiosResponse, AxiosError<AxiosOMessageResponse>, OTPDataType>({
         mutationFn: (data: OTPDataType) => {
             return bashApi.post('/user/sendOTP', data);
@@ -31,15 +33,18 @@ const VerifyOTP = () => {
         }
     })
 
+    const hasSentOTP = useRef(false);
+
     useEffect(() => {
         (() => {
-            if (cId && cEmail) {
+            if (cId && cEmail && !hasSentOTP.current && !verified) {
                 console.log('send otp');
                 const data: OTPDataType = {userId: cId, email: cEmail};
                 sendOTPMutation.mutate(data);
+                hasSentOTP.current = true;
             }
         })()
-    }, [cId,cEmail]);
+    }, [cId, cEmail, sendOTPMutation, verified]);
 
 
     const {
@@ -54,6 +59,14 @@ const VerifyOTP = () => {
         },
         onSuccess: (data) => {
             toast.success(data.data?.message)
+
+            setProfile({
+                ...profile, user: {
+                    ...profile.user,
+                    verified: true
+                }
+            });
+
             navigate('/')
         },
         onError: (error) => {
@@ -63,11 +76,11 @@ const VerifyOTP = () => {
 
     const onSubmit: SubmitHandler<OTPFormType> = (data: OTPFormType) => {
         if (isValid) {
-            OTPMutation.mutate({...data,userId:cId})
+            OTPMutation.mutate({...data, userId: cId})
         }
     }
 
-    if(verified){
+    if (verified) {
         return <ARVerified/>
     }
 
