@@ -31,7 +31,7 @@ const Register = () => {
             return bashApi.post('/user/register', data)
         },
         onSuccess: (response) => {
-            toast.success("User successfully registered!");
+            toast.info("User successfully registered!");
             setProfile(response.data)
             navigate('/verifyOTP')
         },

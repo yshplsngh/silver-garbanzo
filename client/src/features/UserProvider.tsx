@@ -51,8 +51,7 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
             .then(res => res.data),
         initialData: cachedData,
         retry: false,
-        refetchOnWindowFocus: true,
-        refetchOnReconnect: true
+        refetchOnWindowFocus: true
     })
 
     useEffect(() => {
