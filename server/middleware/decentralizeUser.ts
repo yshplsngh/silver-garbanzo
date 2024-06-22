@@ -3,10 +3,11 @@ import {reIssueAccessToken, validateToken} from "../utils/jwtUtils";
 import {accessTokenCookieOptions} from "../routes/auth";
 
 export const deserializeUser = async (req:Request,res:Response,next:NextFunction)=>{
-    const accessToken = req.cookies?.accessToken
+    const accessToken = req.cookies?.accessToken || req.headers?.authorization
     const refreshToken = req.cookies?.refreshToken
 
-    // console.log(refreshToken);
+    // console.log(accessToken);
+    // console.log(req.headers);
 
     if(!accessToken){
         // console.error("Access token is missing");

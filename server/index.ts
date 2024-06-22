@@ -3,7 +3,7 @@ import type {Express,Response,Request} from "express";
 import cookieParser from 'cookie-parser'
 import cors from "cors"
 
-const app:Express = express();
+export const app:Express = express();
 import {PORT} from "./utils/config";
 import {userRouter} from "./routes/auth";
 import {pgConnect} from "./utils/pgConnect";

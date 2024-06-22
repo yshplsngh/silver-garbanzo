@@ -4,7 +4,7 @@ import {prisma} from "../utils/pgConnect";
 
 const router: Router = express.Router();
 
-router.route('/').get(requireUser, async (req: Request, res: Response) => {
+router.route('/').get(async (req: Request, res: Response) => {
     try {
         const {limit, skip} = req.query;
 
