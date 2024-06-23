@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import {ATT, PRIVATE_KEY, PUBLIC_KEY} from "./config";
-import {prisma} from "./pgConnect";
 import {decodedTokenType, UserCDataType} from "../types/auth";
+import {getUserById} from "../services/user.service";
 
 export const signJWT = (data: Object, options?: jwt.SignOptions | undefined) => {
     return jwt.sign(
@@ -36,19 +36,8 @@ export const reIssueAccessToken = async (refreshToken: string) => {
         // console.log('Refresh token expired 38');
         return false;
     }
-    // console.log(decoded)
-    const user:UserCDataType|null = await prisma.user.findUnique({
-        where: {
-            id: decoded.user.id
-        },
-        select: {
-            id: true,
-            email: true,
-            name: true,
-            picture: true,
-            verified: true,
-        }
-    });
+
+    const user = await getUserById({userId:decoded.user.id});
 
     // console.log('find user from refreshtoken decoded id 53')
     // console.log(user)

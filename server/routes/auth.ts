@@ -3,13 +3,26 @@ import type {Request, Response, Router} from "express";
 import bcrypt from 'bcrypt';
 import nodemailer from "nodemailer";
 
-import {OTPDataType, OTPVerifyDataType, PasswordFormSchema, RegisterFormSchema, UserCDataType} from "../types/auth";
+import {
+    OTPDataType,
+    OTPFormSchema,
+    PasswordFormSchema,
+    RegisterFormSchema,
+} from "../types/auth";
 import returnMsg from "../utils/returnMsg";
-import {prisma} from "../utils/pgConnect";
 import {signJWT, validateToken} from "../utils/jwtUtils";
 import {requireUser} from "../middleware/requireUser";
 import {ATT, EMAIL, EMAIL_PASS} from "../utils/config";
 import rateLimit from "../middleware/rateLimiter";
+import {
+    createNewUser,
+    getUserByEmail,
+    getUserById,
+    getUserByIdWithPass,
+    updateUserById,
+    UserDataType
+} from "../services/user.service";
+import {createNewOTP, deleteManyOTP, getUserLatestOTP} from "../services/otp.service";
 
 const router: Router = express.Router();
 
@@ -27,40 +40,16 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
             const msg: string = returnMsg(isValid);
             return res.status(422).send({message: msg});
         }
-        const userFound = await prisma.user.findUnique({
-            where: {
-                email: isValid.data.email
-            },
-            select: {
-                email: true
-            }
-        })
+        const userFound = await getUserByEmail({userEmail: isValid.data.email})
 
         if (userFound) return res.status(409).send({message: 'User already exists'});
 
         const hashedPass = await bcrypt.hash(isValid.data.password, 10);
 
-        const user: UserCDataType = await prisma.user.create({
-            data: {
-                email: isValid.data.email,
-                password: hashedPass,
-                name: isValid.data.name,
-                picture: isValid.data.picture,
-                verified: false
-            },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                picture: true,
-                verified: true
-            }
-        })
+        const user = await createNewUser({userData: isValid.data, hashedPass: hashedPass})
 
         if (!user) return res.status(500).send({message: "operation Failed!"});
 
-        //TODO: here i will call sendOTP function
-        // await sendOTPEmail({email:user.email,userId:user.id});
 
         const accessToken = signJWT({user}, {expiresIn: ATT})
         const refreshToken = signJWT({user}, {expiresIn: "1y"})
@@ -91,7 +80,7 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
             return res.status(422).send({message: msg})
         }
 
-        const otp = `${Math.floor(1000 + Math.random() * 9000)}`
+        const OTP: string = `${Math.floor(1000 + Math.random() * 9000)}`
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -103,14 +92,9 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
             }
         });
 
-        const hashedOTP = await bcrypt.hash(otp, 10);
-        const saveOTP = await prisma.otpverify.create({
-            data: {
-                otp: hashedOTP,
-                UserId: isValid.data.userId
-            }
-        })
+        const hashedOTP = await bcrypt.hash(OTP, 10);
 
+        const saveOTP = await createNewOTP({userId: isValid.data.userId, hashedOTP: hashedOTP})
         if (!saveOTP) return res.status(500).send({message: "Operation Failed!"})
 
         await transporter.sendMail({
@@ -118,7 +102,7 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
             to: isValid.data.email,
             subject: "SignUp Verification for BrainOp",
             text: "SignUp Verification for BrainOp",
-            html: `<b>Enter ${otp} in the app to verify your email address</b>`
+            html: `<b>Enter ${OTP} in the app to verify your email address</b>`
         })
 
         return res.status(200).send({message: "Email send Successfully"})
@@ -132,63 +116,36 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
 
 router.route('/verifyOTP').post(requireUser, async (req: Request, res: Response) => {
     try {
-        const isValid = OTPVerifyDataType.safeParse(req.body);
+        const isValid = OTPFormSchema.safeParse(req.body);
         if (!isValid.success) {
             const msg: string = returnMsg(isValid);
             return res.status(422).send({message: msg});
         }
 
-        const userFound = await prisma.user.findUnique({
-            where:{
-                id:isValid.data.userId
-            }
-        })
+        const userFound = await getUserById({userId: isValid.data.userId})
         if (!userFound) return res.status(404).send({message: 'User not found'});
 
-        const OTP = await prisma.otpverify.findFirst({
-            where:{
-                UserId:isValid.data.userId
-            },
-            orderBy:{
-                createdAt:"desc"
-            }
-        })
+        const OTP = await getUserLatestOTP({userId: isValid.data.userId})
+        if (!OTP) return res.status(404).send({message: "Account record does not exist or verified already, please Sign up"});
 
-        if(!OTP) return res.status(404).send({message:"Account record does not exist or verified already, please Sign up"});
-
-
-        if((Date.now()-OTP.createdAt.getTime())>600000){
-            await prisma.otpverify.deleteMany({
-                where:{
-                    UserId:isValid.data.userId
-                }
-            })
-
-            return res.status(410).send({message:"OTP is expired, please Request new OTP!"});
+        if ((Date.now() - OTP.createdAt.getTime()) > 600000) {
+            await deleteManyOTP({userId: isValid.data.userId});
+            return res.status(410).send({message: "OTP is expired, please Request new OTP!"});
         }
 
-        const isOTPMatch = await bcrypt.compare(isValid.data.otp,OTP.otp)
-        if(!isOTPMatch) return res.status(400).send({message:"Invalid OTP passed, check your inbox"});
+        const isOTPMatch = await bcrypt.compare(isValid.data.otp, OTP.otp)
+        if (!isOTPMatch) return res.status(400).send({message: "Invalid OTP passed, check your inbox"});
 
-        await prisma.$transaction([
-            prisma.user.update({
-                data:{
-                    verified:true
-                },
-                where:{
-                    id:isValid.data.userId
-                }
-            }),
-            prisma.otpverify.deleteMany({
-                where:{
-                    UserId:isValid.data.userId
-                }
-            })
-        ])
+        const userUpdates:Pick<UserDataType, 'verified'> = {
+            verified:true,
+        }
 
-        return res.status(200).send({message:"Account verified"});
+        await deleteManyOTP({userId: userFound.id})
+        await updateUserById({userId:userFound.id,userData:userUpdates})
 
-    } catch (error){
+        return res.status(200).send({message: "Account verified"});
+
+    } catch (error) {
         console.log(error);
         return error
     }
@@ -209,9 +166,9 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
             const msg: string = returnMsg(isValid);
             return res.status(422).send({message: msg});
         }
-        const userFound = await prisma.user.findUnique({
-            where: {id: isValid.data.id}
-        })
+
+
+        const userFound = await getUserByIdWithPass({userId:isValid.data.id})
         if (!userFound) return res.status(404).send({message: 'User not found'});
 
         const isPMatch = await bcrypt.compare(isValid.data.oldPassword, userFound.password)
@@ -219,10 +176,11 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
 
         const newHashedPassword = await bcrypt.hash(isValid.data.newPassword, 10);
 
-        const result = await prisma.user.update({
-            data: {password: newHashedPassword},
-            where: {id: isValid.data.id}
-        })
+        const userUpdates:Pick<UserDataType,'password'> = {
+            password:newHashedPassword
+        }
+
+        const result = await updateUserById({userId:userFound.id,userData:userUpdates})
         if (!result) return res.status(500).send({message: "operation Failed!"});
 
         res.status(200).send({message: "Password Updated"});
@@ -232,6 +190,5 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
         return res.status(500).send(error);
     }
 })
-
 
 export {router as userRouter}

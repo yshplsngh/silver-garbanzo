@@ -9,8 +9,11 @@ import {userRouter} from "./routes/auth";
 import {pgConnect} from "./utils/pgConnect";
 import {deserializeUser} from "./middleware/decentralizeUser";
 import {postRouter} from "./routes/post";
-import {operation} from "./utils/testing";
+import {operation} from "./utils/dbFeeding";
 import rateLimit from "./middleware/rateLimiter";
+import {updateUserById, UserDataType} from "./services/user.service";
+import {UserCDataType} from "./types/auth";
+
 
 
 app.use(cors({
@@ -35,8 +38,5 @@ app.use('/api/post',rateLimit,postRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
-    // Array.from({length:10}).map(async ()=>{
-    //     await sendEmail()
-    // })
     await pgConnect();
 })

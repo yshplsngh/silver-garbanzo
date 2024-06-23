@@ -24,7 +24,7 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-model Otpverify {
+model Otp {
   id        Int      @id @default(autoincrement())
   otp       String
   UserId    Int

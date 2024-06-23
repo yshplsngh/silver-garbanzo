@@ -1,5 +1,5 @@
 import rateLimiter, {Options} from "express-rate-limit";
-import express, {Request, Response, NextFunction} from "express";
+import {Request, Response, NextFunction} from "express";
 
 const rateLimit = rateLimiter({
     windowMs: 60 * 1000,

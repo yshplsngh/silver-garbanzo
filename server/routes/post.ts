@@ -1,10 +1,10 @@
 import express, {Router, Request, Response, query} from "express";
 import {requireUser} from "../middleware/requireUser";
-import {prisma} from "../utils/pgConnect";
+import {getPosts, getTotalPostsCount} from "../services/post.service";
 
 const router: Router = express.Router();
 
-router.route('/').get(async (req: Request, res: Response) => {
+router.route('/').get(requireUser,async (req: Request, res: Response) => {
     try {
         const {limit, skip} = req.query;
 
@@ -12,18 +12,8 @@ router.route('/').get(async (req: Request, res: Response) => {
         const nLimit = parseInt(limit as string, 10);
         const nSkip = parseInt(skip as string, 10);
 
-        const [posts, total] = await prisma.$transaction([
-            prisma.post.findMany(
-                {
-                    take: nLimit,
-                    skip: nSkip,
-                    include:{
-                        reactions:true
-                    }
-                },
-            ),
-            prisma.post.count(),
-        ])
+        const posts = await getPosts({nLimit:nLimit,nSkip:nSkip})
+        const total = await getTotalPostsCount();
 
         if (!posts.length) {
             return res.status(422).send({message:"no posts found"});

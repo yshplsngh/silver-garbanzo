@@ -24,7 +24,7 @@ export const OTPDataType = z.object({
     email:z.string().email().toLowerCase().trim()
 })
 
-export const OTPVerifyDataType = z.object({
+export const OTPFormSchema = z.object({
     userId:z.number(),
     otp: z.string().length(4, "OTP must be exactly 4 characters long")
 })
@@ -54,4 +54,6 @@ export const RegisterFormSchema = z.object({
     message: "Terms and conditions must be accepted",
     path: ["tac"]
 })
+
+export type RegisterFormType = z.infer<typeof RegisterFormSchema>
 
