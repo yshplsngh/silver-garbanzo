@@ -63,7 +63,7 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
         res.cookie('accessToken', accessToken, accessTokenCookieOptions);
         res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions);
 
-        return res.status(200).send(decoded);
+        return res.status(201).send(decoded);
     } catch (error) {
         console.log(error);
         return res.status(500).send(error);
@@ -105,7 +105,7 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
             html: `<b>Enter ${OTP} in the app to verify your email address</b>`
         })
 
-        return res.status(200).send({message: "Email send Successfully"})
+        return res.status(201).send({message: "Email send Successfully"})
 
     } catch (error) {
         console.log(error);
