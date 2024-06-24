@@ -38,11 +38,11 @@ export const PasswordFormSchema = z.object({
     message: "password don't match",
     path: ["confirmPassword"]
 })
-
+export type PasswordFormType = z.infer<typeof PasswordFormSchema>;
 
 export const RegisterFormSchema = z.object({
     name: z.string().trim().min(1, "Name is required"),
-    email: z.string().trim().toLowerCase().email(),
+    email: z.string().trim().email(),
     picture: z.string().trim().min(1, "Enter valid picture url"),
     password: z.string().trim().min(5, errMsg.minPass).max(100, errMsg.maxPass),
     confirmPassword: z.string().trim(),

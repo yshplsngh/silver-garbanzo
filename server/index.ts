@@ -11,7 +11,7 @@ import {deserializeUser} from "./middleware/decentralizeUser";
 import {postRouter} from "./routes/post";
 import {operation} from "./utils/dbFeeding";
 import rateLimit from "./middleware/rateLimiter";
-import {updateUserById, UserDataType} from "./services/user.service";
+import {getUserByEmail, updateUserById, UserDataType} from "./services/user.service";
 import {UserCDataType} from "./types/auth";
 
 
@@ -38,5 +38,6 @@ app.use('/api/post',rateLimit,postRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
+
     await pgConnect();
 })

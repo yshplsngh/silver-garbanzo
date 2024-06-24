@@ -1,10 +1,7 @@
 export default function returnMsg(isValid: any): string {
-    let mess: string;
-    const key: string | number = isValid.error.issues[0].path[0];
+    const key: string = isValid.error.errors[0].message
     if (typeof key === "undefined") {
-        mess = isValid.error.issues[0].message;
-    } else {
-        mess = key + " " + isValid.error.issues[0].message;
+        return "Unknown zod Error"
     }
-    return mess;
+    return key;
 }

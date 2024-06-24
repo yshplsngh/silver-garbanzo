@@ -33,6 +33,8 @@ export const accessTokenCookieOptions: CookieOptions = {
     secure: false,
 };
 
+
+/* User Registration  */
 router.route('/register').post(rateLimit, async (req: Request, res: Response) => {
     try {
         const isValid = RegisterFormSchema.safeParse(req.body);
@@ -48,7 +50,7 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
 
         const user = await createNewUser({userData: isValid.data, hashedPass: hashedPass})
 
-        if (!user) return res.status(500).send({message: "operation Failed!"});
+        if (!user) return res.status(500).send({message: "Internal Server Error"});
 
 
         const accessToken = signJWT({user}, {expiresIn: ATT})
@@ -65,12 +67,12 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
 
         return res.status(201).send(decoded);
     } catch (error) {
-        console.log(error);
-        return res.status(500).send(error);
+        return res.status(500).send({message: "Internal Server Error"});
     }
 })
 
 
+/* Sending an OTP */
 router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) => {
     try {
 
@@ -114,6 +116,7 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
 })
 
 
+/* Verify OTP */
 router.route('/verifyOTP').post(requireUser, async (req: Request, res: Response) => {
     try {
         const isValid = OTPFormSchema.safeParse(req.body);
@@ -136,12 +139,12 @@ router.route('/verifyOTP').post(requireUser, async (req: Request, res: Response)
         const isOTPMatch = await bcrypt.compare(isValid.data.otp, OTP.otp)
         if (!isOTPMatch) return res.status(400).send({message: "Invalid OTP passed, check your inbox"});
 
-        const userUpdates:Pick<UserDataType, 'verified'> = {
-            verified:true,
+        const userUpdates: Pick<UserDataType, 'verified'> = {
+            verified: true,
         }
 
         await deleteManyOTP({userId: userFound.id})
-        await updateUserById({userId:userFound.id,userData:userUpdates})
+        await updateUserById({userId: userFound.id, userData: userUpdates})
 
         return res.status(200).send({message: "Account verified"});
 
@@ -163,31 +166,33 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
         // console.log(req.body);
         const isValid = PasswordFormSchema.safeParse(req.body);
         if (!isValid.success) {
-            const msg: string = returnMsg(isValid);
+            const msg = returnMsg(isValid);
             return res.status(422).send({message: msg});
         }
+        const op = await bcrypt.hash('old_password', 10);
+        console.log(op);
 
-
-        const userFound = await getUserByIdWithPass({userId:isValid.data.id})
+        const userFound = await getUserByIdWithPass({userId: isValid.data.id})
         if (!userFound) return res.status(404).send({message: 'User not found'});
 
         const isPMatch = await bcrypt.compare(isValid.data.oldPassword, userFound.password)
+
         if (!isPMatch) return res.status(401).send({message: "Invalid Old Password"});
 
         const newHashedPassword = await bcrypt.hash(isValid.data.newPassword, 10);
 
-        const userUpdates:Pick<UserDataType,'password'> = {
-            password:newHashedPassword
-        }
 
-        const result = await updateUserById({userId:userFound.id,userData:userUpdates})
-        if (!result) return res.status(500).send({message: "operation Failed!"});
+        // const userUpdates: Pick<UserDataType, 'password'> = {
+        //     password: newHashedPassword
+        // }
+
+        const result = await updateUserById({userId: userFound.id, userData: {password:newHashedPassword}})
+        if (!result) return res.status(500).send({message: "Internal Server Error"});
 
         res.status(200).send({message: "Password Updated"});
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).send(error);
+        return res.status(500).send({message: "Internal Server Error"});
     }
 })
 
