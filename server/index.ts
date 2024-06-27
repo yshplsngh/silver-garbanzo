@@ -9,10 +9,7 @@ import {userRouter} from "./routes/auth";
 import {pgConnect} from "./utils/pgConnect";
 import {deserializeUser} from "./middleware/decentralizeUser";
 import {postRouter} from "./routes/post";
-import {operation} from "./utils/dbFeeding";
 import rateLimit from "./middleware/rateLimiter";
-import {getUserByEmail, updateUserById, UserDataType} from "./services/user.service";
-import {UserCDataType} from "./types/auth";
 
 
 
@@ -26,6 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(deserializeUser)
+
 
 app.use('/health',(req:Request,res:Response)=>{
     return res.status(200).json({
