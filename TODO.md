@@ -3,5 +3,6 @@
 
 
 ## Problem
-### 1. VerifyOtp - running sendOTP mutation twice on render component
+- [x] VerifyOtp - running sendOTP mutation twice on render component.
+- [ ] 
 

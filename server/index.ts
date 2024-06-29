@@ -1,5 +1,4 @@
-import express from 'express'
-import type {Express,Response,Request} from "express";
+import express, {NextFunction, Response, Request, Express} from 'express'
 import cookieParser from 'cookie-parser'
 import cors from "cors"
 
@@ -10,13 +9,16 @@ import {pgConnect} from "./utils/pgConnect";
 import {deserializeUser} from "./middleware/decentralizeUser";
 import {postRouter} from "./routes/post";
 import rateLimit from "./middleware/rateLimiter";
-
+import {ZodError} from "zod";
+import {zodErrorToString} from "./utils/zodErrorToString";
 
 
 app.use(cors({
     origin:"http://localhost:5173",
     credentials:true
 }))
+
+
 app.use(cookieParser());
 app.use(express.json());
 //TODO - remove line if not use any HTML form
@@ -36,6 +38,15 @@ app.use('/api/post',rateLimit,postRouter)
 
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
-
     await pgConnect();
 })
+
+app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof ZodError) {
+        return res.status(400).json({
+            message: zodErrorToString(err),
+        });
+    } else {
+        return res.status(500).json(err);
+    }
+});

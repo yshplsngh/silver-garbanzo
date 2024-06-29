@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:22
 
 WORKDIR /usr/src/app
 
@@ -7,11 +7,15 @@ COPY tsconfig.json  ./
 
 RUN npm install
 
+COPY prisma ./prisma
+
+RUN npx prisma generate
+
 COPY . .
 
 RUN npm run build
 
-CMD ["npm", "start"]
-
 EXPOSE 8000
+
+CMD ["npm", "start"]
 
