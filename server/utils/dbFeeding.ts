@@ -13,12 +13,18 @@ interface PostType {
 }
 
 export async function operation() {
+
     const isDataExists = await prisma.post.count();
-    console.log(isDataExists);
-    if (isDataExists == 250) {
+
+    /*
+    * Feed Posts only one time,
+    * if data already exist, return
+    * */
+    if (isDataExists >= 250) {
         return;
     }
     let status = 0;
+    let prevPer = -1;
     const res = await axios.get('https://dummyjson.com/posts?limit=250');
     res.data.posts.map(async (post: PostType, index: number) => {
         const dum = await prisma.post.create({
@@ -35,9 +41,17 @@ export async function operation() {
                 }
             }
         })
+
+        /*
+        * print only for one time,
+        * print posts uploading status,
+        * so that post status percentage don't repeat
+        * */
         status += 1;
-        console.log(`Status: ${status / 2.5}`);
+        let statusPer = Math.floor(status/2.5);
+        if(statusPer!==prevPer){
+            console.log(`posts uploading ${statusPer}%`);
+        }
+        prevPer = statusPer;
     })
 }
-
-// sudo -i -u postgres

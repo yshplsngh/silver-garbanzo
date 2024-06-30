@@ -4,7 +4,6 @@ import {app} from '../index';
 import {decodedTokenType, PasswordFormType, RegisterFormType, UserCDataType} from "../types/auth";
 import {signJWT} from "../utils/jwtUtils";
 import {ATT} from "../utils/config";
-import bcrypt from "bcrypt";
 
 const createUserReturnData: UserCDataType = {
     id: 1,
@@ -99,7 +98,7 @@ describe('User Mock testing', () => {
             })
         })
 
-        describe('Given the input is valid', () => {
+        describe('User register successfully', () => {
             it('should return 201 with userPayload', async () => {
 
                 /*data expecting from getUserByEmail is null*/
@@ -132,17 +131,20 @@ describe('User Mock testing', () => {
             newConfirmPassword: 'new_password'
         }
 
-        /*
-        * Hashed oldPassword is stored in DB, so we need to create a hash of that password to mimic database result.
-        * coz inside endpoint userInput old_password is compare with DB old password,
-        * so we need to provide already hashed password
-        */
+        /**
+         * Hashed oldPassword is stored in DB, so we need to create a hash of that password to mimic database result.
+         * coz inside endpoint userInput old_password is compare with DB old password,
+         * so we need to provide already hashed password
+         */
 
-        const getUserByIdWithPassReturn = {id: userInput.id, password:"$2b$10$YKccvcqASvBncHIdY7vneeWu7mhAoU64iBxyOvTLU22Uu0BJg/8ya"};
+        const getUserByIdWithPassReturn = {
+            id: userInput.id,
+            password: "$2b$10$YKccvcqASvBncHIdY7vneeWu7mhAoU64iBxyOvTLU22Uu0BJg/8ya"
+        };
 
         describe('Given the input is Invalid', () => {
             it('should return 422', async () => {
-                const invalidUserInput = {...userInput,newConfirmPassword: 'different_password'};
+                const invalidUserInput = {...userInput, newConfirmPassword: 'different_password'};
 
                 const getUserByIdWithPassMock = jest.spyOn(UserService, 'getUserByIdWithPass').mockRejectedValueOnce('Oh no getUserByIdWithPass is called');
                 const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockRejectedValueOnce('Oh no updateUserById is called');
@@ -173,7 +175,7 @@ describe('User Mock testing', () => {
                 expect(status).toBe(404);
                 expect(body.message).toEqual("User not found")
 
-                expect(getUserByIdWithPassMock).toHaveBeenCalledWith({userId:userInput.id});
+                expect(getUserByIdWithPassMock).toHaveBeenCalledWith({userId: userInput.id});
                 expect(updateUserByIdMock).not.toHaveBeenCalled();
             });
         })
@@ -188,7 +190,10 @@ describe('User Mock testing', () => {
                 const getUserByIdWithPassMock = jest.spyOn(UserService, "getUserByIdWithPass").mockResolvedValueOnce(getUserByIdWithPassReturn);
                 const updateUserByIdMock = jest.spyOn(UserService, "updateUserById").mockRejectedValueOnce('Oh no updateUserById is called')
 
-                const {status,body} = await supertest(app).post('/api/user/resetPassword').set("authorization", `${accessToken}`).send(wrongOldPasswordInput)
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/resetPassword').set("authorization", `${accessToken}`).send(wrongOldPasswordInput)
 
                 expect(status).toBe(401);
                 expect(body.message).toEqual("Invalid Old Password")
@@ -201,18 +206,53 @@ describe('User Mock testing', () => {
         describe('internal server error while updating password', () => {
             it('should return 500', async () => {
 
-                const getUserByIdWithPassMock = jest.spyOn(UserService,"getUserByIdWithPass").mockResolvedValueOnce(getUserByIdWithPassReturn);
-                const updateUserByIdMock = jest.spyOn(UserService,"updateUserById").mockImplementationOnce(() => {
+                const getUserByIdWithPassMock = jest.spyOn(UserService, "getUserByIdWithPass").mockResolvedValueOnce(getUserByIdWithPassReturn);
+                const updateUserByIdMock = jest.spyOn(UserService, "updateUserById").mockImplementationOnce(() => {
                     throw new Error('Internal Server Error');
                 })
 
-                const {status,body} = await supertest(app).post('/api/user/resetPassword').set("authorization", `${accessToken}`).send(userInput)
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/resetPassword').set("authorization", `${accessToken}`).send(userInput)
                 expect(status).toBe(500);
 
-                // expect(body.message).toEqual("Internal Server Error");
+                expect(body.message).toEqual("Internal Server Error");
 
                 expect(getUserByIdWithPassMock).toHaveBeenCalledWith({userId: userInput.id});
-                expect(updateUserByIdMock).toHaveBeenCalledWith({userId: userInput.id, userData:{password:expect.any(String)}});
+                /**
+                 * On endpoint after hashing $new_password, hashed can be anything,
+                 * so we have to expect any String, for @@updateUserById function.
+                 * */
+                expect(updateUserByIdMock).toHaveBeenCalledWith({
+                    userId: userInput.id,
+                    userData: {password: expect.any(String)}
+                });
+            })
+        })
+
+        describe('password change successfully', () => {
+            it('should return 200', async () => {
+                const getUserByIdWithPassMock = jest.spyOn(UserService, 'getUserByIdWithPass').mockResolvedValueOnce(getUserByIdWithPassReturn)
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockResolvedValueOnce({email: createUserReturnData.email})
+
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/resetPassword').set("authorization", `${accessToken}`).send(userInput);
+
+                expect(status).toBe(200);
+                expect(body.message).toEqual("Password change successfully")
+
+                expect(getUserByIdWithPassMock).toHaveBeenCalledWith({userId: userInput.id});
+                /**
+                 * On endpoint after hashing $new_password, hashed can be anything,
+                 * so we have to expect any String, for @@updateUserById function.
+                 */
+                expect(updateUserByIdMock).toHaveBeenCalledWith({
+                    userId: userInput.id,
+                    userData: {password: expect.any(String)}
+                })
             })
         })
     })

@@ -71,8 +71,9 @@ export async function createNewUser({userData,hashedPass}:{userData:RegisterForm
 export async function updateUserById({userId,userData}:{userId:number,userData:UserDataType}){
     return prisma.user.update({
         data:userData,
-        where:{
-            id:userId
+        where:{id:userId},
+        select:{
+            email:true
         }
     })
 }

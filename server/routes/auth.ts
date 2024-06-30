@@ -163,14 +163,11 @@ router.route('/me').get(requireUser, (req: Request, res: Response) => {
 
 router.route('/resetPassword').post(requireUser, async (req: Request, res: Response) => {
     try {
-        // console.log(req.body);
         const isValid = PasswordFormSchema.safeParse(req.body);
         if (!isValid.success) {
             const msg = returnMsg(isValid);
             return res.status(422).send({message: msg});
         }
-        const op = await bcrypt.hash('old_password', 10);
-        console.log(op);
 
         const userFound = await getUserByIdWithPass({userId: isValid.data.id})
         if (!userFound) return res.status(404).send({message: 'User not found'});
@@ -181,7 +178,6 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
 
         const newHashedPassword = await bcrypt.hash(isValid.data.newPassword, 10);
 
-
         // const userUpdates: Pick<UserDataType, 'password'> = {
         //     password: newHashedPassword
         // }
@@ -189,7 +185,7 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
         const result = await updateUserById({userId: userFound.id, userData: {password:newHashedPassword}})
         if (!result) return res.status(500).send({message: "Internal Server Error"});
 
-        res.status(200).send({message: "Password Updated"});
+        res.status(200).send({message: "Password change successfully"});
 
     } catch (error) {
         return res.status(500).send({message: "Internal Server Error"});
