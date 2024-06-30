@@ -11,6 +11,7 @@ import {postRouter} from "./routes/post";
 import rateLimit from "./middleware/rateLimiter";
 import {ZodError} from "zod";
 import {zodErrorToString} from "./utils/zodErrorToString";
+import {operation} from "./utils/dbFeeding";
 
 
 app.use(cors({
@@ -39,6 +40,7 @@ app.use('/api/post',rateLimit,postRouter)
 app.listen(PORT,async ()=>{
     console.log('listening on port '+PORT);
     await pgConnect();
+    await operation();
 })
 
 app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
