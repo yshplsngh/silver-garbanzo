@@ -4,8 +4,8 @@ import bcrypt from 'bcrypt';
 import nodemailer from "nodemailer";
 
 import {
-    OTPDataType,
-    OTPFormSchema,
+    SendOTPSchema,
+    VerifyOTPSchema,
     PasswordFormSchema,
     RegisterFormSchema,
 } from "../types/auth";
@@ -76,7 +76,7 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
 router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) => {
     try {
 
-        const isValid = OTPDataType.safeParse(req.body)
+        const isValid = SendOTPSchema.safeParse(req.body)
         if (!isValid.success) {
             const msg: string = returnMsg(isValid);
             return res.status(422).send({message: msg})
@@ -97,21 +97,20 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
         const hashedOTP = await bcrypt.hash(OTP, 10);
 
         const saveOTP = await createNewOTP({userId: isValid.data.userId, hashedOTP: hashedOTP})
-        if (!saveOTP) return res.status(500).send({message: "Operation Failed!"})
+        if (!saveOTP) return res.status(500).send({message: "Internal Server Error"})
 
-        await transporter.sendMail({
-            from: '"Brain Op" <yashpalsinght9@gmail.com>',
-            to: isValid.data.email,
-            subject: "SignUp Verification for BrainOp",
-            text: "SignUp Verification for BrainOp",
-            html: `<b>Enter ${OTP} in the app to verify your email address</b>`
-        })
+        // await transporter.sendMail({
+        //     from: '"Brain Op" <yashpalsinght9@gmail.com>',
+        //     to: isValid.data.email,
+        //     subject: "SignUp Verification for BrainOp",
+        //     text: "SignUp Verification for BrainOp",
+        //     html: `<b>Enter ${OTP} in the app to verify your email address</b>`
+        // })
 
         return res.status(201).send({message: "Email send Successfully"})
 
     } catch (error) {
-        console.log(error);
-        return error
+        return res.status(500).send({message: "Internal Server Error"});
     }
 })
 
@@ -119,7 +118,7 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
 /* Verify OTP */
 router.route('/verifyOTP').post(requireUser, async (req: Request, res: Response) => {
     try {
-        const isValid = OTPFormSchema.safeParse(req.body);
+        const isValid = VerifyOTPSchema.safeParse(req.body);
         if (!isValid.success) {
             const msg: string = returnMsg(isValid);
             return res.status(422).send({message: msg});
@@ -128,11 +127,15 @@ router.route('/verifyOTP').post(requireUser, async (req: Request, res: Response)
         const userFound = await getUserById({userId: isValid.data.userId})
         if (!userFound) return res.status(404).send({message: 'User not found'});
 
-        const OTP = await getUserLatestOTP({userId: isValid.data.userId})
+        const OTP = await getUserLatestOTP({userId: userFound.id})
         if (!OTP) return res.status(404).send({message: "Account record does not exist or verified already, please Sign up"});
 
+        /**
+         * checking last OTP send within 10 min,
+         * if not under 10 min delete all OTP,
+         */
         if ((Date.now() - OTP.createdAt.getTime()) > 600000) {
-            await deleteManyOTP({userId: isValid.data.userId});
+            await deleteManyOTP({userId: userFound.id});
             return res.status(410).send({message: "OTP is expired, please Request new OTP!"});
         }
 
@@ -146,7 +149,7 @@ router.route('/verifyOTP').post(requireUser, async (req: Request, res: Response)
         await deleteManyOTP({userId: userFound.id})
         await updateUserById({userId: userFound.id, userData: userUpdates})
 
-        return res.status(200).send({message: "Account verified"});
+        return res.status(201).send({message: "Account verified"});
 
     } catch (error) {
         console.log(error);

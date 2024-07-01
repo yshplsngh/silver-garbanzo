@@ -19,15 +19,19 @@ export type decodedTokenType = {
     exp: number
 }
 
-export const OTPDataType = z.object({
+export const SendOTPSchema = z.object({
     userId:z.number(),
     email:z.string().email().toLowerCase().trim()
 })
+export type SendOTPType = z.infer<typeof SendOTPSchema>
 
-export const OTPFormSchema = z.object({
+
+export const VerifyOTPSchema = z.object({
     userId:z.number(),
     otp: z.string().length(4, "OTP must be exactly 4 characters long")
 })
+export type VerifyOTPType = z.infer<typeof VerifyOTPSchema>
+
 
 export const PasswordFormSchema = z.object({
     id:z.number(),
@@ -39,6 +43,7 @@ export const PasswordFormSchema = z.object({
     path: ["confirmPassword"]
 })
 export type PasswordFormType = z.infer<typeof PasswordFormSchema>;
+
 
 export const RegisterFormSchema = z.object({
     name: z.string().trim().min(1, "Name is required"),
@@ -54,6 +59,5 @@ export const RegisterFormSchema = z.object({
     message: "Terms and conditions must be accepted",
     path: ["tac"]
 })
-
 export type RegisterFormType = z.infer<typeof RegisterFormSchema>
 

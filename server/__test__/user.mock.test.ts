@@ -1,9 +1,18 @@
 import supertest from 'supertest';
 import * as UserService from '../services/user.service';
+import * as OTPService from '../services/otp.service'
 import {app} from '../index';
-import {decodedTokenType, PasswordFormType, RegisterFormType, UserCDataType} from "../types/auth";
+import {
+    decodedTokenType,
+    PasswordFormType,
+    RegisterFormType,
+    SendOTPType,
+    UserCDataType,
+    VerifyOTPType
+} from "../types/auth";
 import {signJWT} from "../utils/jwtUtils";
 import {ATT} from "../utils/config";
+import {createNewOTP, getUserLatestOTP, OTPDataType} from "../services/otp.service";
 
 const createUserReturnData: UserCDataType = {
     id: 1,
@@ -13,7 +22,13 @@ const createUserReturnData: UserCDataType = {
     verified: false,
 };
 
-const accessToken = signJWT({createUserReturnData}, {expiresIn: ATT})
+const userPayload: decodedTokenType = {
+    user: createUserReturnData,
+    iat: expect.any(Number),
+    exp: expect.any(Number)
+};
+
+const accessToken = signJWT({user: createUserReturnData}, {expiresIn: ATT})
 
 
 describe('User Mock testing', () => {
@@ -27,12 +42,6 @@ describe('User Mock testing', () => {
             tac: true
         };
 
-
-        const userPayload: decodedTokenType = {
-            user: createUserReturnData,
-            iat: expect.any(Number),
-            exp: expect.any(Number)
-        };
 
         describe('Given the input is Invalid', () => {
             it('should return 422', async () => {
@@ -253,6 +262,117 @@ describe('User Mock testing', () => {
                     userId: userInput.id,
                     userData: {password: expect.any(String)}
                 })
+            })
+        })
+    })
+
+    describe('My Profile Data', () => {
+        describe('Tokens are valid', () => {
+            it('should return 200', async () => {
+                const {status, body} = await supertest(app).get('/api/user/me').set("authorization", `${accessToken}`);
+                expect(status).toBe(200);
+                expect(body).toMatchObject(userPayload)
+            })
+        })
+        describe('Token is invalid', () => {
+            it('should return 435', async () => {
+
+                /**
+                 * here we are making AT invalid by replacing with random words.
+                 */
+                const {
+                    status,
+                    body
+                } = await supertest(app).get('/api/user/me').set("authorization", `${accessToken}`.replace('p', 'x'));
+                expect(status).toBe(435);
+                expect(body.message).toEqual("Unauthorized")
+
+            })
+        })
+    })
+
+    describe('Sending OTP', () => {
+        const userInput:SendOTPType = {
+            userId: 1,
+            email: 'yashpal9rx@gmail.com'
+        }
+        /**
+         * random $otp will create and its hashed can be anything,
+         * while providing it to @@function
+         */
+        const createNewOTPInput = {
+            userId: userInput.userId,
+            hashedOTP: expect.any(String)
+        }
+        /**
+         * we will get $otp from DB which is $hashedOTP while sending it to function
+         */
+        const createNewOTPOutput: Omit<OTPDataType, 'createdAt' | 'updatedAt'> = {
+            id: 1,
+            otp: expect.any(String),
+            UserId: userInput.userId
+        }
+
+        describe('given OTP input is invalid', () => {
+            it('should return 422', async () => {
+                const invalidUserInput = {...userInput, email: "invalid_email"}
+                const createNewOTPMock = jest.spyOn(OTPService, 'createNewOTP').mockRejectedValueOnce('oh no createNewOTP is called')
+
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/sendOTP').set('authorization', `${accessToken}`).send(invalidUserInput);
+
+                expect(status).toBe(422);
+                expect(body.message).toEqual("Invalid email")
+                expect(createNewOTPMock).not.toHaveBeenCalled()
+            })
+        })
+        describe('creating OTP in DB failed', () => {
+            it('should return 500', async () => {
+
+                const createNewOTPMock = jest.spyOn(OTPService, 'createNewOTP').mockImplementationOnce(() => {
+                    throw new Error('Internal Server Error');
+                })
+
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/sendOTP').set('authorization', `${accessToken}`).send(userInput);
+
+                expect(status).toBe(500);
+                expect(body.message).toEqual("Internal Server Error");
+
+                expect(createNewOTPMock).toHaveBeenCalledWith(createNewOTPInput);
+            });
+        })
+        describe('OTP send successfully', () => {
+            it('should return 201', async () => {
+                const createNewOTPMock = jest.spyOn(OTPService, 'createNewOTP').mockResolvedValueOnce(createNewOTPOutput)
+
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/sendOTP').set('authorization', `${accessToken}`).send(userInput);
+                expect(status).toBe(201);
+                expect(body.message).toEqual("Email send Successfully");
+
+                expect(createNewOTPMock).toHaveBeenCalledWith(createNewOTPInput);
+            })
+        })
+    })
+
+    describe("Verifying OTP", () => {
+        const userInput:VerifyOTPType = {
+            userId: 1,
+            otp:'7217'
+        }
+        describe("given OTP input is invalid",()=>{
+            it('should return 422', async () => {
+                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockRejectedValueOnce('oh no getUserById is called');
+                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockRejectedValueOnce('oh no getUserLatestOTP is called');
+                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+
             })
         })
     })

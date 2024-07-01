@@ -1,6 +1,6 @@
 import {prisma} from "../utils/pgConnect";
 
-interface OTPDataType{
+export interface OTPDataType{
     id: number,
     otp: string,
     UserId: number,
@@ -8,7 +8,7 @@ interface OTPDataType{
     updatedAt: Date
 }
 
-export async function createNewOTP({userId, hashedOTP}: { userId: number, hashedOTP: string }):Promise<OTPDataType> {
+export async function createNewOTP({userId, hashedOTP}: { userId: number, hashedOTP: string }):Promise<Omit<OTPDataType,'createdAt'|'updatedAt'>> {
     return prisma.otp.create({
         data: {
             otp: hashedOTP,
