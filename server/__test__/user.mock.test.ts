@@ -12,7 +12,7 @@ import {
 } from "../types/auth";
 import {signJWT} from "../utils/jwtUtils";
 import {ATT} from "../utils/config";
-import {createNewOTP, getUserLatestOTP, OTPDataType} from "../services/otp.service";
+import {OTPDataType} from "../services/otp.service";
 
 const createUserReturnData: UserCDataType = {
     id: 1,
@@ -367,13 +367,178 @@ describe('User Mock testing', () => {
             userId: 1,
             otp:'7217'
         }
+        const getUserByIdOutput:UserCDataType = {
+            id: 1,
+            email: 'yashpal@gmail.com',
+            name: 'yashpal',
+            picture: 'picture.png',
+            verified: false,
+        }
+
+        /**
+         * setting created time to 15 min past to check endpoint,
+         * coz otp check for 10 min,
+         */
+        const fifteenMinPast = new Date(new Date().getTime()-15*60*1000)
+
+        /**
+         * setting created time to 2 min past, it can be anything b/w 1-10,
+         * but here we take OTP is now 2 min OLD
+         */
+        const twoMinPast = new Date(new Date().getTime()-2*60*1000)
+
+        /**
+         * we will get hashed OTP from DB
+         */
+        const getUserLatestOTPOutput:OTPDataType = {
+            id:1,
+            otp:'$2b$10$oP2rbYPf1NpxgeEp8J.9Nu99xetZ1i9De.DqRvghQvCkuseSJl7hO',//7217
+            UserId: userInput.userId,
+            updatedAt:twoMinPast,
+            createdAt:twoMinPast
+        }
         describe("given OTP input is invalid",()=>{
             it('should return 422', async () => {
+                const invalidUserInput = {...userInput,otp:'invalid_OTP'}
+
                 const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockRejectedValueOnce('oh no getUserById is called');
                 const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockRejectedValueOnce('oh no getUserLatestOTP is called');
                 const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
 
+                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(invalidUserInput);
+                expect(status).toBe(422);
+                expect(body.message).toEqual("OTP must be exactly 4 characters long");
+
+                expect(getUserByIdMock).not.toHaveBeenCalled()
+                expect(getUserLatestOTPMock).not.toHaveBeenCalled()
+                expect(deleteManyOTPMock).not.toHaveBeenCalled()
+                expect(updateUserByIdMock).not.toHaveBeenCalled()
             })
         })
+
+        describe('given userId does not exist', () => {
+            it('should return 404', async () => {
+                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(null);
+                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockRejectedValueOnce('oh no getUserLatestOTP is called');
+                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+
+                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+
+                expect(status).toBe(404);
+                expect(body.message).toEqual("User not found");
+
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserLatestOTPMock).not.toHaveBeenCalled()
+                expect(deleteManyOTPMock).not.toHaveBeenCalled()
+                expect(updateUserByIdMock).not.toHaveBeenCalled()
+            });
+        })
+
+        describe('given userId, No OTP exist',()=>{
+            it('should return 404', async () => {
+                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+                /**
+                 * for given user no OTP exist, so function return $null,
+                 * that's why we are expecting $null here
+                 */
+                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(null);
+
+                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+
+                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+
+                expect(status).toBe(404);
+                expect(body.message).toEqual("Account record does not exist or verified already, please Sign up");
+
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(deleteManyOTPMock).not.toHaveBeenCalled()
+                expect(updateUserByIdMock).not.toHaveBeenCalled()
+            })
+        })
+
+        describe('Latest OTP is more than 10 min OLD',()=>{
+            it('should return 410', async () => {
+                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+
+                /**
+                 * providing createdAt to 15 min, get an error
+                 * coz limit is 10 min
+                 */
+                const invalidGetUserLatestOTPOutput = {...getUserLatestOTPOutput,createdAt:fifteenMinPast,updatedAt: fifteenMinPast};
+                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(invalidGetUserLatestOTPOutput);
+
+                /**
+                 * prisma deleteMany return a count variable, tells how many fields are deleted,
+                 * so it can be anything,
+                 */
+                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockResolvedValueOnce({count:expect.any(Number)});
+                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+
+                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+
+                expect(status).toBe(410);
+                expect(body.message).toEqual("OTP is expired, please Request new OTP!");
+
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(deleteManyOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(updateUserByIdMock).not.toHaveBeenCalled()
+            })
+        })
+
+        describe('given User OTP does not match with DB OTP',()=>{
+            it('should return 400', async () => {
+
+                /**
+                 * DB contain hashed OTP of 7217, but here we are proving 8000 to check,
+                 */
+                const invalidUserInput:VerifyOTPType = {...userInput,otp:'8000'};
+
+                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(getUserLatestOTPOutput);
+
+                /**
+                 * this time we don't want to run deleteManyOTP function coz time is 2 min,
+                 * which is under 10 min,
+                 */
+                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+
+                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(invalidUserInput);
+
+                expect(status).toBe(400);
+                expect(body.message).toEqual("Invalid OTP passed, check your inbox");
+
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(deleteManyOTPMock).not.toHaveBeenCalled();
+                expect(updateUserByIdMock).not.toHaveBeenCalled()
+            })
+        })
+
+        describe('OTP verified successfully',()=>{
+            it('should return 201', async () => {
+
+                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(getUserLatestOTPOutput);
+                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockResolvedValueOnce({count:expect.any(Number)});
+                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockResolvedValueOnce({email:"yashpal@gmail.com"});
+
+                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+
+                expect(status).toBe(201);
+                expect(body.message).toEqual("Account verified");
+
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(deleteManyOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(updateUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId,userData:{verified: true}})
+            })
+        })
+
     })
 });

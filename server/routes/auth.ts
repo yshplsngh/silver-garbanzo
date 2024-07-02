@@ -152,8 +152,7 @@ router.route('/verifyOTP').post(requireUser, async (req: Request, res: Response)
         return res.status(201).send({message: "Account verified"});
 
     } catch (error) {
-        console.log(error);
-        return error
+        return res.status(500).send({message: "Internal Server Error"});
     }
 })
 
@@ -181,11 +180,10 @@ router.route('/resetPassword').post(requireUser, async (req: Request, res: Respo
 
         const newHashedPassword = await bcrypt.hash(isValid.data.newPassword, 10);
 
-        // const userUpdates: Pick<UserDataType, 'password'> = {
-        //     password: newHashedPassword
-        // }
-
-        const result = await updateUserById({userId: userFound.id, userData: {password:newHashedPassword}})
+        const userUpdates: Pick<UserDataType, 'password'> = {
+            password: newHashedPassword
+        }
+        const result = await updateUserById({userId: userFound.id, userData:userUpdates})
         if (!result) return res.status(500).send({message: "Internal Server Error"});
 
         res.status(200).send({message: "Password change successfully"});
