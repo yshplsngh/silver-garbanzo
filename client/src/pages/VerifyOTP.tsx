@@ -6,10 +6,11 @@ import {bashApi} from "../api/bashApi.tsx";
 import {toast} from "sonner";
 import {AxiosError, AxiosResponse} from "axios";
 import {AxiosOMessageResponse} from "../features/UserProvider.tsx";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useCallback, useEffect, useRef} from "react";
 import useProfile from "../features/useProfile.ts";
 import ARVerified from "./ARVerified.tsx";
+
 
 interface OTPDataType {
     userId: number;
@@ -18,6 +19,7 @@ interface OTPDataType {
 
 const VerifyOTP = () => {
     const navigate = useNavigate();
+
     const {profile, setProfile} = useProfile();
     const {user: {id: cId, email: cEmail, verified}} = profile;
     const hasSentOTP = useRef(false);
@@ -41,6 +43,7 @@ const VerifyOTP = () => {
     useEffect(() => {
         sendOTP();
     }, [sendOTP]);
+
 
     const {
         register,
@@ -72,30 +75,38 @@ const VerifyOTP = () => {
     if (verified) {
         return <ARVerified/>;
     }
-
-    return (
-        <section>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <label htmlFor="otp">OTP: </label>
-                    <input
-                        {...register("otp", {required: true})}
-                        id="otp"
-                        type="number"
-                        placeholder="1234"
-                        className={'text-gray-950'}
-                    />
-                    {errors.otp && <p>{errors.otp?.message}</p>}
-                </div>
-                <button type='submit'>Verify OTP</button>
-            </form>
-            <button onClick={() => {
-                hasSentOTP.current = false;
-                sendOTP();
-            }}>Resend OTP
-            </button>
-        </section>
-    );
+    else if(cEmail.length===0){
+        return <div>
+            <h1>First Register yourself</h1>
+            <button><Link to={'/register'}>Register</Link></button>
+        </div>
+    }
+    else return (
+        <main>
+            {/*user must be logged in.*/}
+            {cEmail.length !== 0 && <section>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div>
+                        <label htmlFor="otp">OTP: </label>
+                        <input
+                            {...register("otp", {required: true})}
+                            id="otp"
+                            type="number"
+                            placeholder="1234"
+                            className={'text-gray-950'}
+                        />
+                        {errors.otp && <p>{errors.otp?.message}</p>}
+                    </div>
+                    <button type='submit'>Verify OTP</button>
+                </form>
+                <button onClick={() => {
+                    hasSentOTP.current = false;
+                    sendOTP();
+                }}>Resend OTP
+                </button>
+            </section>}
+        </main>
+    )
 };
 
 export default VerifyOTP;

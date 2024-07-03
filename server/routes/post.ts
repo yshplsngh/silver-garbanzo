@@ -12,13 +12,13 @@ router.route('/').get(requireUser,async (req: Request, res: Response) => {
         const nLimit = parseInt(limit as string, 10);
         const nSkip = parseInt(skip as string, 10);
 
-        const posts = await getPosts({nLimit:nLimit,nSkip:nSkip})
         const total = await getTotalPostsCount();
-
-        if (!posts.length) {
+        if (total==0) {
             return res.status(422).send({message:"no posts found"});
         }
 
+        const posts = await getPosts({nLimit:nLimit,nSkip:nSkip})
+        console.log(posts);
         const result = {
             posts: posts,
             limit: nLimit,

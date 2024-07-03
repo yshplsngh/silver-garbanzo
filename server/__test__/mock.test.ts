@@ -1,6 +1,7 @@
 import supertest from 'supertest';
 import * as UserService from '../services/user.service';
 import * as OTPService from '../services/otp.service'
+import * as PostServices from '../services/post.service'
 import {app} from '../index';
 import {
     decodedTokenType,
@@ -14,7 +15,7 @@ import {signJWT} from "../utils/jwtUtils";
 import {ATT} from "../utils/config";
 import {OTPDataType} from "../services/otp.service";
 
-const createUserReturnData: UserCDataType = {
+const createNewUserOutput: UserCDataType = {
     id: 1,
     email: 'yashpal@gmail.com',
     name: 'yashpal',
@@ -23,12 +24,12 @@ const createUserReturnData: UserCDataType = {
 };
 
 const userPayload: decodedTokenType = {
-    user: createUserReturnData,
+    user: createNewUserOutput,
     iat: expect.any(Number),
     exp: expect.any(Number)
 };
 
-const accessToken = signJWT({user: createUserReturnData}, {expiresIn: ATT})
+export const accessToken = signJWT({user: createNewUserOutput}, {expiresIn: ATT})
 
 
 describe('User Mock testing', () => {
@@ -114,7 +115,7 @@ describe('User Mock testing', () => {
                 const getUserByEmailMock = jest.spyOn(UserService, 'getUserByEmail').mockResolvedValueOnce(null);
 
                 /*data expecting from createNewUser is <createUserReturnData>*/
-                const createNewUserMock = jest.spyOn(UserService, 'createNewUser').mockResolvedValueOnce(createUserReturnData);
+                const createNewUserMock = jest.spyOn(UserService, 'createNewUser').mockResolvedValueOnce(createNewUserOutput);
 
                 const {status, body} = await supertest(app).post('/api/user/register').send(userInput);
 
@@ -243,7 +244,7 @@ describe('User Mock testing', () => {
         describe('password change successfully', () => {
             it('should return 200', async () => {
                 const getUserByIdWithPassMock = jest.spyOn(UserService, 'getUserByIdWithPass').mockResolvedValueOnce(getUserByIdWithPassReturn)
-                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockResolvedValueOnce({email: createUserReturnData.email})
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockResolvedValueOnce({email: createNewUserOutput.email})
 
                 const {
                     status,
@@ -292,7 +293,7 @@ describe('User Mock testing', () => {
     })
 
     describe('Sending OTP', () => {
-        const userInput:SendOTPType = {
+        const userInput: SendOTPType = {
             userId: 1,
             email: 'yashpal9rx@gmail.com'
         }
@@ -363,11 +364,11 @@ describe('User Mock testing', () => {
     })
 
     describe("Verifying OTP", () => {
-        const userInput:VerifyOTPType = {
+        const userInput: VerifyOTPType = {
             userId: 1,
-            otp:'7217'
+            otp: '7217'
         }
-        const getUserByIdOutput:UserCDataType = {
+        const getUserByIdOutput: UserCDataType = {
             id: 1,
             email: 'yashpal@gmail.com',
             name: 'yashpal',
@@ -379,34 +380,37 @@ describe('User Mock testing', () => {
          * setting created time to 15 min past to check endpoint,
          * coz otp check for 10 min,
          */
-        const fifteenMinPast = new Date(new Date().getTime()-15*60*1000)
+        const fifteenMinPast = new Date(new Date().getTime() - 15 * 60 * 1000)
 
         /**
          * setting created time to 2 min past, it can be anything b/w 1-10,
          * but here we take OTP is now 2 min OLD
          */
-        const twoMinPast = new Date(new Date().getTime()-2*60*1000)
+        const twoMinPast = new Date(new Date().getTime() - 2 * 60 * 1000)
 
         /**
          * we will get hashed OTP from DB
          */
-        const getUserLatestOTPOutput:OTPDataType = {
-            id:1,
-            otp:'$2b$10$oP2rbYPf1NpxgeEp8J.9Nu99xetZ1i9De.DqRvghQvCkuseSJl7hO',//7217
+        const getUserLatestOTPOutput: OTPDataType = {
+            id: 1,
+            otp: '$2b$10$oP2rbYPf1NpxgeEp8J.9Nu99xetZ1i9De.DqRvghQvCkuseSJl7hO',//7217
             UserId: userInput.userId,
-            updatedAt:twoMinPast,
-            createdAt:twoMinPast
+            updatedAt: twoMinPast,
+            createdAt: twoMinPast
         }
-        describe("given OTP input is invalid",()=>{
+        describe("given OTP input is invalid", () => {
             it('should return 422', async () => {
-                const invalidUserInput = {...userInput,otp:'invalid_OTP'}
+                const invalidUserInput = {...userInput, otp: 'invalid_OTP'}
 
-                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockRejectedValueOnce('oh no getUserById is called');
-                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockRejectedValueOnce('oh no getUserLatestOTP is called');
-                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
-                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+                const getUserByIdMock = jest.spyOn(UserService, 'getUserById').mockRejectedValueOnce('oh no getUserById is called');
+                const getUserLatestOTPMock = jest.spyOn(OTPService, 'getUserLatestOTP').mockRejectedValueOnce('oh no getUserLatestOTP is called');
+                const deleteManyOTPMock = jest.spyOn(OTPService, 'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
 
-                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(invalidUserInput);
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(invalidUserInput);
                 expect(status).toBe(422);
                 expect(body.message).toEqual("OTP must be exactly 4 characters long");
 
@@ -419,126 +423,226 @@ describe('User Mock testing', () => {
 
         describe('given userId does not exist', () => {
             it('should return 404', async () => {
-                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(null);
-                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockRejectedValueOnce('oh no getUserLatestOTP is called');
-                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
-                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+                const getUserByIdMock = jest.spyOn(UserService, 'getUserById').mockResolvedValueOnce(null);
+                const getUserLatestOTPMock = jest.spyOn(OTPService, 'getUserLatestOTP').mockRejectedValueOnce('oh no getUserLatestOTP is called');
+                const deleteManyOTPMock = jest.spyOn(OTPService, 'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
 
-                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
 
                 expect(status).toBe(404);
                 expect(body.message).toEqual("User not found");
 
-                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId: userInput.userId})
                 expect(getUserLatestOTPMock).not.toHaveBeenCalled()
                 expect(deleteManyOTPMock).not.toHaveBeenCalled()
                 expect(updateUserByIdMock).not.toHaveBeenCalled()
             });
         })
 
-        describe('given userId, No OTP exist',()=>{
+        describe('given userId, No OTP exist', () => {
             it('should return 404', async () => {
-                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+                const getUserByIdMock = jest.spyOn(UserService, 'getUserById').mockResolvedValueOnce(getUserByIdOutput);
                 /**
                  * for given user no OTP exist, so function return $null,
                  * that's why we are expecting $null here
                  */
-                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(null);
+                const getUserLatestOTPMock = jest.spyOn(OTPService, 'getUserLatestOTP').mockResolvedValueOnce(null);
 
-                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+                const deleteManyOTPMock = jest.spyOn(OTPService, 'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
 
-                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
-                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
 
                 expect(status).toBe(404);
                 expect(body.message).toEqual("Account record does not exist or verified already, please Sign up");
 
-                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
-                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId: userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId: userInput.userId})
                 expect(deleteManyOTPMock).not.toHaveBeenCalled()
                 expect(updateUserByIdMock).not.toHaveBeenCalled()
             })
         })
 
-        describe('Latest OTP is more than 10 min OLD',()=>{
+        describe('Latest OTP is more than 10 min OLD', () => {
             it('should return 410', async () => {
-                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+                const getUserByIdMock = jest.spyOn(UserService, 'getUserById').mockResolvedValueOnce(getUserByIdOutput);
 
                 /**
                  * providing createdAt to 15 min, get an error
                  * coz limit is 10 min
                  */
-                const invalidGetUserLatestOTPOutput = {...getUserLatestOTPOutput,createdAt:fifteenMinPast,updatedAt: fifteenMinPast};
-                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(invalidGetUserLatestOTPOutput);
+                const invalidGetUserLatestOTPOutput = {
+                    ...getUserLatestOTPOutput,
+                    createdAt: fifteenMinPast,
+                    updatedAt: fifteenMinPast
+                };
+                const getUserLatestOTPMock = jest.spyOn(OTPService, 'getUserLatestOTP').mockResolvedValueOnce(invalidGetUserLatestOTPOutput);
 
                 /**
                  * prisma deleteMany return a count variable, tells how many fields are deleted,
                  * so it can be anything,
                  */
-                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockResolvedValueOnce({count:expect.any(Number)});
-                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+                const deleteManyOTPMock = jest.spyOn(OTPService, 'deleteManyOTP').mockResolvedValueOnce({count: expect.any(Number)});
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
 
-                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
 
                 expect(status).toBe(410);
                 expect(body.message).toEqual("OTP is expired, please Request new OTP!");
 
-                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
-                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
-                expect(deleteManyOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId: userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId: userInput.userId})
+                expect(deleteManyOTPMock).toHaveBeenCalledWith({userId: userInput.userId})
                 expect(updateUserByIdMock).not.toHaveBeenCalled()
             })
         })
 
-        describe('given User OTP does not match with DB OTP',()=>{
+        describe('given User OTP does not match with DB OTP', () => {
             it('should return 400', async () => {
 
                 /**
                  * DB contain hashed OTP of 7217, but here we are proving 8000 to check,
                  */
-                const invalidUserInput:VerifyOTPType = {...userInput,otp:'8000'};
+                const invalidUserInput: VerifyOTPType = {...userInput, otp: '8000'};
 
-                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
-                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(getUserLatestOTPOutput);
+                const getUserByIdMock = jest.spyOn(UserService, 'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+                const getUserLatestOTPMock = jest.spyOn(OTPService, 'getUserLatestOTP').mockResolvedValueOnce(getUserLatestOTPOutput);
 
                 /**
                  * this time we don't want to run deleteManyOTP function coz time is 2 min,
                  * which is under 10 min,
                  */
-                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
-                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
+                const deleteManyOTPMock = jest.spyOn(OTPService, 'deleteManyOTP').mockRejectedValueOnce('oh no deleteManyOTP is called');
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockRejectedValueOnce('oh no updateUserById is called');
 
-                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(invalidUserInput);
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(invalidUserInput);
 
                 expect(status).toBe(400);
                 expect(body.message).toEqual("Invalid OTP passed, check your inbox");
 
-                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
-                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId: userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId: userInput.userId})
                 expect(deleteManyOTPMock).not.toHaveBeenCalled();
                 expect(updateUserByIdMock).not.toHaveBeenCalled()
             })
         })
 
-        describe('OTP verified successfully',()=>{
+        describe('OTP verified successfully', () => {
             it('should return 201', async () => {
 
-                const getUserByIdMock = jest.spyOn(UserService,'getUserById').mockResolvedValueOnce(getUserByIdOutput);
-                const getUserLatestOTPMock = jest.spyOn(OTPService,'getUserLatestOTP').mockResolvedValueOnce(getUserLatestOTPOutput);
-                const deleteManyOTPMock = jest.spyOn(OTPService,'deleteManyOTP').mockResolvedValueOnce({count:expect.any(Number)});
-                const updateUserByIdMock = jest.spyOn(UserService,'updateUserById').mockResolvedValueOnce({email:"yashpal@gmail.com"});
+                const getUserByIdMock = jest.spyOn(UserService, 'getUserById').mockResolvedValueOnce(getUserByIdOutput);
+                const getUserLatestOTPMock = jest.spyOn(OTPService, 'getUserLatestOTP').mockResolvedValueOnce(getUserLatestOTPOutput);
+                const deleteManyOTPMock = jest.spyOn(OTPService, 'deleteManyOTP').mockResolvedValueOnce({count: expect.any(Number)});
+                const updateUserByIdMock = jest.spyOn(UserService, 'updateUserById').mockResolvedValueOnce({email: "yashpal@gmail.com"});
 
-                const {status,body} = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
+                const {
+                    status,
+                    body
+                } = await supertest(app).post('/api/user/verifyOTP').set('authorization', `${accessToken}`).send(userInput);
 
                 expect(status).toBe(201);
                 expect(body.message).toEqual("Account verified");
 
-                expect(getUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId})
-                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
-                expect(deleteManyOTPMock).toHaveBeenCalledWith({userId:userInput.userId})
-                expect(updateUserByIdMock).toHaveBeenCalledWith({userId:userInput.userId,userData:{verified: true}})
+                expect(getUserByIdMock).toHaveBeenCalledWith({userId: userInput.userId})
+                expect(getUserLatestOTPMock).toHaveBeenCalledWith({userId: userInput.userId})
+                expect(deleteManyOTPMock).toHaveBeenCalledWith({userId: userInput.userId})
+                expect(updateUserByIdMock).toHaveBeenCalledWith({userId: userInput.userId, userData: {verified: true}})
             })
         })
 
     })
 });
+describe('POST Mock Testing', () => {
+    const getPostsOutput = [
+        {
+            id: 2251,
+            title: 'His mother had always taught him',
+            body: "His mother had always taught him not to ever think of himself as better than others. He'd tried to live by this motto. He never looked down on those who were less fortunate or who had less money than him. But the stupidity of the group of people he was talking to made him change his mind.",
+            tags: ['history', 'american', 'crime'],
+            views: 305,
+            reactions: {id: 2251, likes: 192, dislikes: 25, postId: 2251}
+        },
+        {
+            id: 2252,
+            title: 'Dave watched as the forest burned up on the hill.',
+            body: "Dave watched as the forest burned up on the hill, only a few miles from her house. The car had been hastily packed and Marta was inside trying to round up the last of the pets. Dave went through his mental list of the most important papers and documents that they couldn't leave behind. He scolded himself for not having prepared these better in advance and hoped that he had remembered everything that was needed. He continued to wait for Marta to appear with the pets, but she still was nowhere to be seen.",
+            tags: ['magical', 'history', 'french'],
+            views: 4152,
+            reactions: {id: 2253, likes: 1448, dislikes: 39, postId: 2252}
+        }
+    ]
+    const Output = {
+        posts: [
+            {
+                id: 2251,
+                title: 'His mother had always taught him',
+                body: "His mother had always taught him not to ever think of himself as better than others. He'd tried to live by this motto. He never looked down on those who were less fortunate or who had less money than him. But the stupidity of the group of people he was talking to made him change his mind.",
+                tags: ["history", "american", "crime",],
+                views: 305,
+                reactions: {
+                    "dislikes": 25, "id": 2251, "likes": 192, "postId": 2251,
+                }
+            },
+            {
+                id: 2252,
+                title: 'Dave watched as the forest burned up on the hill.',
+                body: "Dave watched as the forest burned up on the hill, only a few miles from her house. The car had been hastily packed and Marta was inside trying to round up the last of the pets. Dave went through his mental list of the most important papers and documents that they couldn't leave behind. He scolded himself for not having prepared these better in advance and hoped that he had remembered everything that was needed. He continued to wait for Marta to appear with the pets, but she still was nowhere to be seen.",
+                tags: ["magical", "history", "french",],
+                views: 4152,
+                reactions: {
+                    "dislikes": 39, "id": 2253, "likes": 1448, "postId": 2252,
+                }
+            }
+        ],
+        limit: 2,
+        skip: 0,
+        total: 2500
+    }
+    describe('Sending Post', () => {
+        describe('No Posts Exist', () => {
+            it('Should return 422', async () => {
+                const getTotalPostsCountMock = jest.spyOn(PostServices, 'getTotalPostsCount').mockResolvedValueOnce(0);
+                const getPostsMock = jest.spyOn(PostServices, 'getPosts').mockRejectedValueOnce('oh no getPosts is Called')
+                const {
+                    status,
+                    body
+                } = await supertest(app).get('/api/post?limit=2&skip=0').set("authorization", `${accessToken}`);
+
+                expect(status).toBe(422);
+                expect(body.message).toBe("no posts found");
+
+                expect(getTotalPostsCountMock).toHaveBeenCalledWith();
+                expect(getPostsMock).not.toHaveBeenCalled();
+            })
+        })
+        describe('Post Exist', () => {
+            it('should return 200', async () => {
+                const getTotalPostsCountMock = jest.spyOn(PostServices, 'getTotalPostsCount').mockResolvedValueOnce(2500);
+                const getPostsMock = jest.spyOn(PostServices, 'getPosts').mockResolvedValueOnce(getPostsOutput)
+                const {
+                    status,
+                    body
+                } = await supertest(app).get('/api/post?limit=2&skip=0').set("authorization", `${accessToken}`);
+
+                expect(status).toBe(200);
+                expect(body).toMatchObject(Output);
+
+                expect(getTotalPostsCountMock).toHaveBeenCalledWith();
+                expect(getPostsMock).toHaveBeenCalledWith({nLimit: 2, nSkip: 0});
+            });
+        })
+    })
+})

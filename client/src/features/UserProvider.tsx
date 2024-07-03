@@ -4,7 +4,6 @@ import {bashApi} from "../api/bashApi.tsx";
 import {AxiosError} from "axios";
 import {UserProfileType} from "../types/User.ts";
 
-
 export interface AxiosOMessageResponse {
     message: string;
 }
