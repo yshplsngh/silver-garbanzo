@@ -1,4 +1,7 @@
+
 const Home = () => {
-    return <h1>Brain OP Assignment</h1>
+    return (
+        <div>Home</div>
+    )
 }
 export default Home;

@@ -99,6 +99,7 @@ const Register = () => {
                     {...register("password", {required: true})}
                     type={viewPassword ? "text" : "password"}
                     id="password"
+                    placeholder="profile.png"
                     className={'text-gray-950'}
                 />
                 <button type={'button'} onClick={() => setViewPassword(prevState => !prevState)}>👁️</button>
@@ -114,6 +115,7 @@ const Register = () => {
                     {...register("confirmPassword", {required: true})}
                     type={viewCPassword ? "text" : "password"}
                     id="confirmPassword"
+                    placeholder="profile.png"
                     className={'text-gray-950'}
                 />
                 <button type={'button'} onClick={() => setViewCPassword(prevState => !prevState)}>👁️</button>

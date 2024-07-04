@@ -18,7 +18,6 @@ router.route('/').get(requireUser,async (req: Request, res: Response) => {
         }
 
         const posts = await getPosts({nLimit:nLimit,nSkip:nSkip})
-        console.log(posts);
         const result = {
             posts: posts,
             limit: nLimit,

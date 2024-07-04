@@ -10,8 +10,10 @@ const RequireAuth = () => {
 
     // console.log({'loading':isLoading})
     // console.log({'success':isSuccess})
-
-    if (!profile.user.verified){
+    if (profile.user.email.length == 0) {
+        toast.error("Please Register");
+        return <Navigate to={"/register"} replace state={{from: location}}/>
+    } else if (!profile.user.verified) {
         toast.error("Please Verify your Email");
         return <Navigate to={"/verifyOTP"} replace state={{from: location}}/>
     } else if (isSuccess || profile.user.email.length > 0) {
