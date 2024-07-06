@@ -13,23 +13,23 @@ function Header() {
     const {pathname} = useLocation();
 
     return (
-        <header className={'z-20 fixed w-full op border-b-2 backdrop-blur'}>
+        <header className={'z-20 fixed w-full op border-b-2 border-gray-500 backdrop-blur'}>
             <nav
-                className={`flex flex-row justify-between items-center op 3xl:w-[100rem] 3xl:mx-auto text-var-black px-7 h-20`}>
+                className={`flex flex-row justify-between items-center op 3xl:w-[100rem] 3xl:mx-auto text-gray-800 px-7 h-20`}>
                 <ul className={'hidden md:flex space-x-4 text-[1.4rem]'}>
                     <Link to={"/"}>
-                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Home</li>
+                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Home</li>
                     </Link>
                     <Link to={"/posts"}>
-                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Posts</li>
+                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Posts</li>
                     </Link>
                     <Link to={"/tac"}>
-                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
                             Privacy Policy
                         </li>
                     </Link>
                     {email && <Link to={'/resetPassword'} className={''}>
-                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                        <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
                             Reset Password
                         </li>
                     </Link>}
@@ -47,28 +47,28 @@ function Header() {
                     {isMenuOpen &&
                         <ul className={'pp flex flex-col absolute top-14 p-1 whitespace-nowrap bg-gray-50 rounded-2xl px-3 py-3 space-y-2'}>
                             <Link to={"/"}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Home</li>
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Home</li>
                             </Link>
                             {!email && <Link to={"/register"}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Register</li>
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Register</li>
                             </Link>}
                             <Link to={"/tac"}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
                                     Posts
                                 </li>
                             </Link>
                             <Link to={"/posts"}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
                                     Privacy Policy
                                 </li>
                             </Link>
                             {email && <Link to={'/resetPassword'} className={''}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>Reset
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Reset
                                     Password
                                 </li>
                             </Link>}
                             {email && !verified && <Link to={'/verifyOTP'} className={''}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-[#0F4C75]'}>
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
                                     Verify Account
                                 </li>
                             </Link>}
@@ -86,9 +86,7 @@ function Header() {
 
                 {/* when email in context not exist or route is not register Page */}
                 {!email && pathname !== "/register" && <Link to={"/register"}>
-                    <Button variant={"primary"} text={"Register"}>
-                        Register
-                    </Button>
+                    <Button variant={"primary"} text={"Register"} className={'w-32'}/>
                 </Link>}
             </nav>
         </header>

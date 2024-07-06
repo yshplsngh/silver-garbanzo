@@ -16,8 +16,9 @@ export default {
                 '3xl': '1800px', // Adding a custom screen size
             },
             fontFamily: {
-                display: ["Canva Sans", "Noto", "system-ui", "sans-serif"],
-                default: ["Canva Sans", "Noto", "system-ui", "sans-serif"],
+                gama:["Wittgenstein", "system-ui","sans-serif"],
+                display: ["system-ui", "sans-serif"],
+                default: ["Noto Sans", "system-ui", "sans-serif"],
             },
             animation: {
                 spinner: "spinner 1.2s linear infinite",

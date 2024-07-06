@@ -13,8 +13,8 @@ export default function Button({className, text, variant = "primary", loading, .
         <button
             type={"button"}
             disabled={loading || props.disabled}
-            className={`group flex h-10 w-full items-center justify-center space-x-2 rounded-md border px-4 text-lg transition-all 
-                ${variant == "primary" ? `border-black bg-black ${!loading && "text-white hover:bg-white hover:text-black"}` : ""}
+            className={`group flex h-12 w-full items-center justify-center space-x-2 rounded-full border px-4 text-xl transition-all 
+                ${variant == "primary" ? `border-black bg-gray-900 text-white ${!loading && "hover:bg-black"}` : ""}
                 ${variant == "secondary" ? "border-gray-200 bg-white text-gray-600 hover:bg-gray-100" : ""}
                 ${props.disabled || loading ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400" : ""}
                 ${className}
