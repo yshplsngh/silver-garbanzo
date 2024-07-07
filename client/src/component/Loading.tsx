@@ -1,4 +1,4 @@
-import {SyncLoader} from "react-spinners";
+import {ClipLoader} from "react-spinners";
 
 interface styleTypo {
     [key: string]: string;
@@ -20,7 +20,7 @@ const Loading = () => {
 
     return (
         <div style={loadingStyle}>
-            <SyncLoader color="#ffffff" speedMultiplier={0.7} margin={4}/>
+            <ClipLoader color="#000000" speedMultiplier={0.7}/>
         </div>
     );
 }

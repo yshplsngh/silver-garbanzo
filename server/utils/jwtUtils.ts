@@ -12,14 +12,27 @@ export const signJWT = (data: Object, options?: jwt.SignOptions | undefined) => 
 }
 
 
-export const validateToken = (token: string) => {
+export const validateToken = async (token: string) => {
     try {
         const decoded: decodedTokenType = jwt.verify(token, PUBLIC_KEY) as decodedTokenType;
-        // console.log('refresh token content');
-        // console.log(decoded);
+        /**
+         * we can also directly send $decoded, but if some user info is updated then we need to update that
+         * info in AT also
+         */
+        const updatedInfo = await getUserById({userId: decoded.user.id});
+        if(!updatedInfo) {
+            return {
+                expired:false,
+                decoded,
+            }
+        }
+        /**
+         * decoded also contain $iat and $exp, so we also need to send both with updated
+         * user data.
+         */
         return {
             expired: false,
-            decoded
+            decoded: {iat: decoded.iat, exp: decoded.exp, user: updatedInfo},
         }
     } catch (error: any) {
         return {
@@ -30,14 +43,14 @@ export const validateToken = (token: string) => {
 }
 
 export const reIssueAccessToken = async (refreshToken: string) => {
-    const {decoded, expired} = validateToken(refreshToken);
+    const {decoded, expired} = await validateToken(refreshToken);
 
     if (decoded === null || expired) {
         // console.log('Refresh token expired 38');
         return false;
     }
 
-    const user = await getUserById({userId:decoded.user.id});
+    const user = await getUserById({userId: decoded.user.id});
 
     // console.log('find user from refreshtoken decoded id 53')
     // console.log(user)

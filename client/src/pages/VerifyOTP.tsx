@@ -6,11 +6,9 @@ import {bashApi} from "../api/bashApi.tsx";
 import {toast} from "sonner";
 import {AxiosError, AxiosResponse} from "axios";
 import {AxiosOMessageResponse} from "../features/UserProvider.tsx";
-import {Navigate, useNavigate, useLocation} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {useCallback, useEffect, useRef} from "react";
 import useProfile from "../features/useProfile.ts";
-import ARVerified from "./ARVerified.tsx";
-
 
 interface OTPDataType {
     userId: number;
@@ -19,7 +17,6 @@ interface OTPDataType {
 
 const VerifyOTP = () => {
     const navigate = useNavigate();
-    const location = useLocation();
 
     const {profile, setProfile} = useProfile();
     const {user: {id: cId, email: cEmail, verified}} = profile;
@@ -74,11 +71,7 @@ const VerifyOTP = () => {
         }
     };
 
-    if (verified){
-        return <ARVerified/>;
-    } else if (cEmail.length === 0) {
-        return <Navigate to={"/register"} replace state={{from: location}}/>
-    } else return (
+    return (
         <main>
             {/*user must be logged in.*/}
             {cEmail.length !== 0 && <section>

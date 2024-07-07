@@ -25,6 +25,7 @@ export type UseProfileContextType = {
     setProfile: (profile: UserProfileType) => void,
     isSuccess: boolean,
     isLoading:boolean,
+    isError: boolean,
 }
 
 const initContextState: UseProfileContextType = {
@@ -32,6 +33,7 @@ const initContextState: UseProfileContextType = {
     setProfile:()=>{},
     isSuccess:false,
     isLoading:true,
+    isError:true
 }
 
 const ProfileContext = createContext<UseProfileContextType>(initContextState)
@@ -53,6 +55,7 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
         refetchOnWindowFocus: true
     })
 
+    // console.log(isSuccess);
     useEffect(() => {
         if (isSuccess && data) {
             setProfile(data);
@@ -66,7 +69,7 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
     }, [isSuccess, data, isError]);
 
     return (
-        <ProfileContext.Provider value={{profile,setProfile,isSuccess,isLoading}}>
+        <ProfileContext.Provider value={{profile,setProfile,isSuccess,isLoading,isError}}>
             {children}
         </ProfileContext.Provider>
     )

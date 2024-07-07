@@ -56,7 +56,7 @@ router.route('/register').post(rateLimit, async (req: Request, res: Response) =>
         const accessToken = signJWT({user}, {expiresIn: ATT})
         const refreshToken = signJWT({user}, {expiresIn: "1y"})
 
-        const {decoded} = validateToken(accessToken);
+        const {decoded} = await validateToken(accessToken);
         const refreshTokenCookieOptions: CookieOptions = {
             ...accessTokenCookieOptions,
             maxAge: 3.154e10, // 1 year

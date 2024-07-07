@@ -45,26 +45,26 @@ function Header() {
                     <button onClick={() => setIsMenuOpen(prev => !prev)}>{isMenuOpen ? <GrClose/> :
                         <GiHamburgerMenu/>}</button>
                     {isMenuOpen &&
-                        <ul className={'pp flex flex-col absolute top-14 p-1 whitespace-nowrap bg-gray-50 rounded-2xl px-3 py-3 space-y-2'}>
+                        <ul className={'flex flex-col absolute top-14 p-1 whitespace-nowrap bg-var-bg shadow-xl rounded-2xl px-3 py-3 space-y-2'}>
                             <Link to={"/"}>
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Home</li>
                             </Link>
                             {!email && <Link to={"/register"}>
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Register</li>
                             </Link>}
-                            <Link to={"/tac"}>
+                            <Link to={"/posts"}>
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
                                     Posts
                                 </li>
                             </Link>
-                            <Link to={"/posts"}>
+                            <Link to={"/tac"}>
                                 <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
                                     Privacy Policy
                                 </li>
                             </Link>
                             {email && <Link to={'/resetPassword'} className={''}>
-                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Reset
-                                    Password
+                                <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>
+                                    Reset Password
                                 </li>
                             </Link>}
                             {email && !verified && <Link to={'/verifyOTP'} className={''}>

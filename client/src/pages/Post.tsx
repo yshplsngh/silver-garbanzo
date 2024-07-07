@@ -47,9 +47,11 @@ const Post = () => {
     const { ref, inView } = useInView();
 
     useEffect(() => {
-        if (inView) {
-            fetchNextPage();
-        }
+        (async ()=>{
+            if (inView) {
+                await fetchNextPage();
+            }
+        })()
     }, [inView, fetchNextPage]);
 
     // console.log(data);
@@ -63,7 +65,7 @@ const Post = () => {
     // console.log(data)
     // console.log(cachedData)
     return (
-        <section>
+        <section className={'scroll-smooth'}>
             {data?.pages.map((page: ResultType, pageIndex: number) => (
                 <div key={pageIndex}>
                     {page.posts.map((post: PostType) => (
@@ -75,7 +77,7 @@ const Post = () => {
                 </div>
             ))}
             <div className={'text-red-500'}>{isError && `${error?.response?.data?.message}`}</div>
-            <div ref={ref}>{isFetchingNextPage && <Loading/>}</div>
+            <div ref={ref} className={'op pb-28'}>{isFetchingNextPage && <Loading/>}</div>
         </section>
     );
 };

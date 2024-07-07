@@ -14,8 +14,8 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
         return next();
     }
 
-    const {decoded,expired} = validateToken(accessToken);
-    if(decoded){
+    const {decoded,expired} = await validateToken(accessToken);
+    if(!expired && decoded){
         // console.log(16)
         // console.log(decoded)
         res.locals.user = decoded
@@ -32,10 +32,10 @@ export const deserializeUser = async (req:Request,res:Response,next:NextFunction
             return next()
         }
 
-        const result = validateToken(newAccessToken);
+        const {decoded} = await validateToken(newAccessToken);
         // console.log(35)
         // console.log(result);
-        res.locals.user = result.decoded;
+        res.locals.user = decoded;
         return next();
     }
     return next();
