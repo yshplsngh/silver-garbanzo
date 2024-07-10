@@ -13,7 +13,7 @@ function Header() {
     const {pathname} = useLocation();
 
     return (
-        <header className={'z-20 fixed w-full op border-b-2 border-gray-500 backdrop-blur'}>
+        <header className={'z-20 fixed w-full op border-b-2 border-gray-400 backdrop-blur'}>
             <nav
                 className={`flex flex-row justify-between items-center op 3xl:w-[100rem] 3xl:mx-auto text-gray-800 px-7 h-20`}>
                 <ul className={'hidden md:flex space-x-4 text-[1.4rem]'}>

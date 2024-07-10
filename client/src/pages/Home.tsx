@@ -11,8 +11,8 @@ const Home = () => {
                             <div className={''}>Human</div>
                             <div className={''}>stories & ideas</div>
                         </div>
-                        <div className={'font-default text-xl font-medium'}>A place to read, write, and deepen your
-                            understanding
+                        <div className={'font-default text-xl font-medium'}>
+                            A place to read, write, and deepen your understanding
                         </div>
                         <div>
                             <Link to={'/posts'}>

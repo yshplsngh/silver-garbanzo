@@ -6,10 +6,10 @@ import Layout from "./component/Layout";
 import Err404 from "./pages/Err404";
 import {Suspense} from "react";
 import Loading from "./component/Loading";
-import Testing from "./component/Testing";
 import Home from "./pages/Home";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyOTP from "./pages/VerifyOTP";
+import Tac from "./pages/Tac.tsx";
 
 function App() {
     return (
@@ -19,11 +19,11 @@ function App() {
                     <Route index element={<Home/>}/>
                     <Route path="register" element={<Register/>}/>
                     <Route path="verifyOTP" element={<VerifyOTP/>}/>
+                    <Route path="tac" element={<Tac/>}/>
                     <Route element={<RequireAuth/>}>
                         <Route path="posts" element={<Post/>}/>
                         <Route path="resetPassword" element={<ResetPassword/>}/>
                     </Route>
-                    <Route path="test" element={<Testing/>}/>
                     <Route path="*" element={<Err404/>}/>
                 </Route>
             </Routes>
