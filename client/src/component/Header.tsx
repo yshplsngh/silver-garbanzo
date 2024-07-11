@@ -2,7 +2,6 @@ import {useState} from "react";
 import {GrClose} from "react-icons/gr";
 import {GiHamburgerMenu} from "react-icons/gi";
 import {Link, useLocation} from "react-router-dom";
-import '../assets/project.css'
 import useProfile from "../features/useProfile.ts";
 import Button from "./Button.tsx";
 
@@ -16,7 +15,7 @@ function Header() {
         <header className={'z-20 fixed w-full op border-b-2 border-gray-400 backdrop-blur'}>
             <nav
                 className={`flex flex-row justify-between items-center op 3xl:w-[100rem] 3xl:mx-auto text-gray-800 px-7 h-20`}>
-                <ul className={'hidden md:flex space-x-4 text-[1.4rem]'}>
+                <ul className={'hidden md:flex space-x-4 text-[1.1rem]'}>
                     <Link to={"/"}>
                         <li className={'cursor-pointer select-none whitespace-nowrap transition duration-100 hover:text-black'}>Home</li>
                     </Link>
@@ -86,7 +85,7 @@ function Header() {
 
                 {/* when email in context not exist or route is not register Page */}
                 {!email && pathname !== "/register" && <Link to={"/register"}>
-                    <Button variant={"primary"} text={"Register"} className={'w-32'}/>
+                    <Button variant={"primary"} text={"Register"} className={'w-32'} type={'button'}/>
                 </Link>}
             </nav>
         </header>
