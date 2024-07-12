@@ -113,7 +113,7 @@ Note that this takes up a significant amount of space on your machine. Make sure
 4. Open your terminal, navigate to the root directory, and run the following commands:
 
    ```sh 
-     docker-compose build
+   docker-compose build
    ```
    ```sh
    docker-compose up
