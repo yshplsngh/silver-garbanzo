@@ -3,7 +3,7 @@ dotenv.config();
 
 export const PORT = process.env.PORT || 8001;
 
-export const ATT = process.env.ATT || '1m';
+export const ATT = process.env.ATT || '5m';
 
 export const EMAIL = process.env.EMAIL || 'yashpal@gmail.com';
 
