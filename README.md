@@ -51,15 +51,27 @@ Make sure you have Docker, Node.js, and a package manager (either npm or yarn) i
 
 > **FYI**: This project uses **npm** as the package manager, but you're free to use **yarn** too.
 
-### Installation
+## Development Installation
 
-Follow these steps to install the application locally:
+### Manual Installation
 
-1. Clone the repo:
+1. Install Node.js. The recommended way is to Node through [nvm](https://github.com/nvm-sh/nvm).
+2. Clone the repo:
    ```sh
    git clone https://github.com/yshplsngh/Feature-Focus.git
-
-2. Configure environment variables:
+3. If you are using nvm, run `$ nvm use 22.4.0` to set your Node version to 22.4.0
+4. Navigate into the client folder and install all its necessary dependencies with npm.
+   ```sh
+   npm install
+   ```
+5. Navigate into the server folder and install all its necessary dependencies with npm.
+   ```sh
+   npm install
+   ```
+6. Install PostgreSql and make sure it is running.
+   * For Fedora: [PostgreSql Installation](https://docs.fedoraproject.org/en-US/quick-docs/postgresql/)
+   
+7. Configure environment variables:
 
     - Navigate to the /server directory.
     - Rename the .env.example file to .env.
@@ -72,7 +84,31 @@ Follow these steps to install the application locally:
    PRIVATE_KEY   | Private Key For JWT  
    PUBLIC_KEY    | Public Key for JWT   
 
-3. Open your terminal, navigate to the root directory, and run the following commands:
+8. Navigate to the server directory and run:
+   ```sh
+   npm run dev
+   ```
+9. Navigate to the client directory and run:
+   ```sh
+   npm run dev
+   ```
+10. Navigate to [http://localhost:5173](http://localhost:5173) in your browser
+Follow these steps to install the application locally:
+
+11. Install the [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en)
+
+
+### Docker Installation
+Using Docker, you can have a complete, consistent development environment without having to manually install dependencies such as Node, Mongo, etc. It also helps isolate these dependencies and their data from other projects that you may have on the same computer that use different/conflicting versions, etc.
+
+Note that this takes up a significant amount of space on your machine. Make sure you have at least 4GB free.
+
+1. Install Docker for your operating system
+   * [Fedora](https://docs.docker.com/engine/install/fedora/)
+   * [Windows](https://www.docker.com/docker-windows)
+2. Clone this repository and cd into it
+3. Configure environment variables(Same as Manual Installation).
+4. Open your terminal, navigate to the root directory, and run the following commands:
 
    ```sh 
      docker-compose build
@@ -80,20 +116,6 @@ Follow these steps to install the application locally:
    ```sh
    docker-compose up
    ```
-4. Alternatively, you can manually start the project:
-    - Navigate to the server directory and run:
-      ```sh
-         npm install
-         npm run dev
-         ```
-    - Navigate to the client directory and run:
-
-       ```sh 
-       npm install
-       npm run dev
-      ```
-
-   Open your browser and go to http://localhost:5173.
 
 <p align="right"><a href="#top">back to top</a></p>
 
