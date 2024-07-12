@@ -24,7 +24,7 @@
 Welcome to the **Feature-Focus** GitHub repository! Here, you'll find the source code for our sleek and sophisticated
 infinite post application, built with modern technologies and a focus on user experience.
 
-### [See Features List In Project]()
+### [See Features List In Project](https://github.com/yshplsngh/Feature-Focus/blob/main/Feature.md)
 
 <p align="right"><a href="#top">back to top</a></p>
 
