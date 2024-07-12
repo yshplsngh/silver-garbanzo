@@ -15,14 +15,15 @@ export default function Button({className, text, type="button", variant = "prima
             type={type}
             onClick={props.onClick}
             disabled={loading || props.disabled}
-            className={`group h-9 flex w-fit items-center justify-center space-x-2 rounded-full border px-7 text-md transition-all 
+            className={`group h-9 flex w-fit duration-300 items-center justify-center space-x-2 rounded-full border px-7 text-md transition-all 
                 ${variant == "primary" ? `border-black bg-gray-900 text-white ${!loading && "hover:bg-black"}` : ""}
                 ${variant == "secondary" ? "border-gray-200 bg-white text-gray-600 hover:bg-gray-100" : ""}
                 ${props.disabled || loading ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400" : ""}
                 ${className}
+                
             `}
         >
-            {loading ? <LoadingSpinner/> : null}
+            {loading && <LoadingSpinner/> }
             {text && <p>{text}</p>}
         </button>
     )
