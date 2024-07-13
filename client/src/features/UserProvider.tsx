@@ -31,9 +31,9 @@ export type UseProfileContextType = {
 const initContextState: UseProfileContextType = {
     profile: initialState,
     setProfile:()=>{},
-    isSuccess:false,
+    isSuccess:true,
     isLoading:true,
-    isError:true
+    isError:false
 }
 
 const ProfileContext = createContext<UseProfileContextType>(initContextState)
@@ -59,14 +59,14 @@ export const UserProvider = ({children}: ChildrenType): ReactElement => {
     useEffect(() => {
         if (isSuccess && data) {
             setProfile(data);
-            console.log(data)
+            console.log(data);
         } else if (isError && error) {
             // if (error?.response?.status !== 435) {
             //     toast.error(error.response?.data?.message);
             // }
             setProfile(initialState);
         }
-    }, [isSuccess, data, isError]);
+    }, [isSuccess, data, isError,error]);
 
     return (
         <ProfileContext.Provider value={{profile,setProfile,isSuccess,isLoading,isError}}>

@@ -5,13 +5,13 @@ import useProfile from "./useProfile.ts";
 const RequireAuth = () => {
     const location = useLocation();
 
-    const {profile, isSuccess,isError} = useProfile()
+    const {profile,isError,isSuccess} = useProfile()
 
-    // console.log(profile);
-    // console.log({'loading':isLoading})
-    // console.log({'success': isSuccess})
+    console.log(profile);
+    console.log({'error':isError})
+    console.log({'success': isSuccess})
 
-    if (!isSuccess && isError) {
+    if (profile.user.email.length===0){
         toast.error("Please Register");
         return <Navigate to={"/register"} replace state={{from: location}}/>
     }else if (!profile.user.verified) {

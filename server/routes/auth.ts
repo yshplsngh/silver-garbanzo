@@ -99,13 +99,13 @@ router.route('/sendOTP').post(requireUser, async (req: Request, res: Response) =
         const saveOTP = await createNewOTP({userId: isValid.data.userId, hashedOTP: hashedOTP})
         if (!saveOTP) return res.status(500).send({message: "Internal Server Error"})
 
-        // await transporter.sendMail({
-        //     from: '"Brain Op" <yashpalsinght9@gmail.com>',
-        //     to: isValid.data.email,
-        //     subject: "SignUp Verification for BrainOp",
-        //     text: "SignUp Verification for BrainOp",
-        //     html: `<b>Enter ${OTP} in the app to verify your email address</b>`
-        // })
+        await transporter.sendMail({
+            from: '"Brain Op" <yashpalsinght9@gmail.com>',
+            to: isValid.data.email,
+            subject: "SignUp Verification for BrainOp",
+            text: "SignUp Verification for BrainOp",
+            html: `<b>Enter ${OTP} in the app to verify your email address</b>`
+        })
 
         return res.status(201).send({message: "Email send Successfully"})
 

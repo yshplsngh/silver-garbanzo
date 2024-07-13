@@ -14,7 +14,7 @@ const Layout = () => {
         if (verified) {
             // toast.info("You are already verified");
             return <Navigate to={"/"} replace state={{from: location}}/>;
-        } else if (!isSuccess && email.length === 0) {
+        } else if (!isSuccess && email.length === 0){
             // toast.info("Register first");
             return <Navigate to={"/register"} replace state={{from: location}}/>
         }
