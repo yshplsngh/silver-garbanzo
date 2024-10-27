@@ -21,10 +21,10 @@
 
 ## About The Project
 
-Welcome to the **Feature-Focus** GitHub repository! Here, you'll find the source code for our sleek and sophisticated
+Welcome to the **silver-garbanzo** GitHub repository! Here, you'll find the source code for our sleek and sophisticated
 infinite post application, built with modern technologies and a focus on user experience.
 
-### [See Features List In Project](https://github.com/yshplsngh/Feature-Focus/blob/main/Feature.md)
+### [See Features List In Project](https://github.com/yshplsngh/silver-garbanzo/blob/main/Feature.md)
 
 <p align="right"><a href="#top">back to top</a></p>
 
@@ -60,7 +60,7 @@ Make sure you have Docker, Node.js, and a package manager (either npm or yarn) i
 1. Install Node.js. The recommended way is to Node through [nvm](https://github.com/nvm-sh/nvm).
 2. Clone the repo:
    ```sh
-   git clone https://github.com/yshplsngh/Feature-Focus.git
+   git clone https://github.com/yshplsngh/silver-garbanzo.git
 3. If you are using nvm, run `$ nvm use 22.4.0` to set your Node version to 22.4.0
 4. Navigate into the client folder and install all its necessary dependencies with npm.
    ```sh
